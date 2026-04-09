@@ -4,7 +4,7 @@
    "description": "",
    "main": "server.ts",
    "scripts": {
-      "dev": "nodemon src/server.ts",
+      "dev": "tsx --watch src/server.ts",
       "start": "node dist/server.js",
       "build": "tsc"
    },
@@ -17,10 +17,12 @@
       "@types/node": "^25.5.2",
       "nodemon": "^3.1.14",
       "ts-node": "^10.9.2",
+      "tsx": "^4.21.0",
       "typescript": "^6.0.2"
    },
    "dependencies": {
       "dotenv": "^17.4.1",
-      "express": "^5.2.1"
+      "express": "^5.2.1",
+      "mongoose": "^9.4.1"
    }
 }
