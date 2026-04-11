@@ -12,7 +12,7 @@ const categorySchema = new Schema({
    },
 });
 
-export type Category = InferSchemaType<typeof categorySchema>;
+export type TCategory = InferSchemaType<typeof categorySchema>;
 
 const Category = mongoose.model('Category', categorySchema);
 export default Category;
