@@ -1,8 +1,7 @@
 import express from 'express';
-import type { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/database.js';
-import { login, resgister } from './Controllers/userController.js';
+import userRoutes from './routes/userRoutes.js';
 
 dotenv.config();
 
@@ -11,12 +10,7 @@ connectDB();
 const app = express();
 app.use(express.json());
 
-app.get('/', (req: Request, res: Response) => {
-   res.send('Hello World');
-});
-
-app.post('/register', resgister);
-app.post('/login', login);
+app.use('/api/users', userRoutes);
 
 app.listen(PORT, () => {
    console.log(`Server is running on http://localhost:${PORT}`);

@@ -14,7 +14,7 @@ const generateJwtToken = (user: TUser) => {
    );
 };
 
-export const resgister = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response) => {
    try {
       const { name, email, password } = req.body;
 
