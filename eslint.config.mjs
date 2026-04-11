@@ -17,8 +17,10 @@ export default tseslint.config(
          },
       },
       rules: {
-         // You can add custom rules here later!
-         // Example: '@typescript-eslint/no-explicit-any': 'error'
+         '@typescript-eslint/no-unused-vars': [
+            'error',
+            { argsIgnorePattern: '^_' },
+         ],
       },
    }
 );
