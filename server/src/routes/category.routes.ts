@@ -1,19 +1,19 @@
 import { Router } from 'express';
 import {
-   addCategory,
+   createCategory,
    deleteCategory,
-   editCategory,
-   getAllCategories,
-   getCategoryById,
+   getCategories,
+   getCategory,
+   updateCategory,
 } from '../controllers/category.controller.js';
 import { asyncHandler } from '../utils/async.handler.js';
 
 const categoryRoutes = Router();
 
-categoryRoutes.post('/', asyncHandler(addCategory));
-categoryRoutes.get('/', asyncHandler(getAllCategories));
-categoryRoutes.get('/:id', asyncHandler(getCategoryById));
+categoryRoutes.post('/', asyncHandler(createCategory));
+categoryRoutes.get('/', asyncHandler(getCategories));
+categoryRoutes.get('/:id', asyncHandler(getCategory));
 categoryRoutes.delete('/:id', asyncHandler(deleteCategory));
-categoryRoutes.put('/:id', asyncHandler(editCategory));
+categoryRoutes.put('/:id', asyncHandler(updateCategory));
 
 export default categoryRoutes;

@@ -1,20 +1,44 @@
 import type { NextFunction, Request, Response } from 'express';
 import { HTTP_STATUS } from '../enums/http.status.js';
+import { AppError } from '../utils/app.error.js';
+
+interface IErrorResponse {
+   error: {
+      code: string;
+      message: string;
+      details?: unknown | undefined;
+      stack?: string | undefined;
+   };
+}
 
 export const globalExceptionHandler = (
-   err: Error & { statusCode?: number },
+   err: Error | AppError,
    req: Request,
    res: Response,
    _next: NextFunction
 ) => {
-   console.error(err.stack);
-
-   const statusCode = err.statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR;
+   const statusCode =
+      err instanceof AppError
+         ? err.statusCode
+         : HTTP_STATUS.INTERNAL_SERVER_ERROR;
+   const code = err instanceof AppError ? err.code : 'INTERNAL_SERVER_ERROR';
    const message = err.message || 'Internal server error';
 
-   res.status(statusCode).json({
-      success: false,
-      message,
-      stack: process.env.NODE_ENV === 'production' ? null : err.stack,
-   });
+   const errorResponse: IErrorResponse = {
+      error: {
+         code,
+         message,
+      },
+   };
+
+   if (err instanceof AppError && err.details) {
+      errorResponse.error.details = err.details;
+   }
+
+   if (process.env.NODE_ENV !== 'production' && err.stack) {
+      errorResponse.error.stack = err.stack;
+      console.error(err.stack);
+   }
+
+   res.status(statusCode).json(errorResponse);
 };
