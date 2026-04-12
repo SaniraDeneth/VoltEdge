@@ -60,31 +60,23 @@ export const getCategoryById = async (req: Request, res: Response) => {
 };
 
 export const deleteCategory = async (req: Request, res: Response) => {
-   try {
-      const { id } = req.params;
+   const { id } = req.params;
 
-      const category = await Category.findById(id);
+   const category = await Category.findById(id);
 
-      if (!category) {
-         return res.status(HTTP_STATUS.NOT_FOUND).json({
-            success: false,
-            message: 'Category not found',
-         });
-      }
-
-      await Category.findByIdAndDelete(id);
-
-      res.status(HTTP_STATUS.OK).json({
-         success: true,
-         message: 'Category deleted successfully',
-      });
-   } catch (err: unknown) {
-      console.log(err);
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+   if (!category) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
          success: false,
-         message: 'Internal server error',
+         message: 'Category not found',
       });
    }
+
+   await Category.findByIdAndDelete(id);
+
+   res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: 'Category deleted successfully',
+   });
 };
 
 export const editCategory = async (req: Request, res: Response) => {
