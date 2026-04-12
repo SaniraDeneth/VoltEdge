@@ -12,7 +12,7 @@ const categoryRoutes = Router();
 
 categoryRoutes.post('/', asyncHandler(addCategory));
 categoryRoutes.get('/', asyncHandler(getAllCategories));
-categoryRoutes.get('/:name', asyncHandler(getCategoryById));
+categoryRoutes.get('/:id', asyncHandler(getCategoryById));
 categoryRoutes.delete('/:id', asyncHandler(deleteCategory));
 categoryRoutes.put('/:id', asyncHandler(editCategory));
 
