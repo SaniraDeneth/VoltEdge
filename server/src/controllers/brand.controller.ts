@@ -1,102 +1,73 @@
 import type { Request, Response } from 'express';
 import { HTTP_STATUS } from '../enums/http.status.js';
 import Brand from '../models/brand.model.js';
+import { AppError } from '../utils/app.error.js';
 
-export const addBrand = async (req: Request, res: Response) => {
+export const createBrand = async (req: Request, res: Response) => {
    const { name, image } = req.body;
 
    if (!name || !image) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-         success: false,
-         message: 'Please provide all the required fields',
-      });
+      throw new AppError(
+         'Please provide all the required fields',
+         HTTP_STATUS.BAD_REQUEST,
+         'VALIDATION_ERROR'
+      );
    }
 
-   const existingBrand = await Brand.findOne({ name: name });
-
+   const existingBrand = await Brand.findOne({ name });
    if (existingBrand) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-         success: false,
-         message: 'Brand already exists.',
-      });
+      throw new AppError(
+         'Brand already exists.',
+         HTTP_STATUS.BAD_REQUEST,
+         'ALREADY_EXISTS'
+      );
    }
 
-   const newBrand = await Brand.create({ name: name, image: image });
+   const brand = await Brand.create({ name, image });
 
-   return res.status(HTTP_STATUS.CREATED).json({
-      success: true,
-      message: 'Brand added successfully',
-      data: newBrand,
-   });
+   return res.status(HTTP_STATUS.CREATED).json(brand);
 };
 
-export const getAllBrands = async (req: Request, res: Response) => {
+export const getBrands = async (req: Request, res: Response) => {
    const brands = await Brand.find();
-
-   res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: 'Brands fetched successfully',
-      data: brands,
-   });
+   return res.status(HTTP_STATUS.OK).json(brands);
 };
 
-export const getBrandById = async (req: Request, res: Response) => {
+export const getBrand = async (req: Request, res: Response) => {
    const { id } = req.params;
 
    const brand = await Brand.findById(id);
-
    if (!brand) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({
-         success: false,
-         message: 'Brand not found',
-      });
+      throw new AppError('Brand not found', HTTP_STATUS.NOT_FOUND, 'NOT_FOUND');
    }
 
-   res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: 'Brand fetched successfully',
-      data: brand,
-   });
+   return res.status(HTTP_STATUS.OK).json(brand);
 };
 
 export const deleteBrand = async (req: Request, res: Response) => {
    const { id } = req.params;
 
-   const brand = await Brand.findById(id);
-
-   if (!brand) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({
-         success: false,
-         message: 'Brand not found',
-      });
+   const deleted = await Brand.findByIdAndDelete(id);
+   if (!deleted) {
+      throw new AppError('Brand not found', HTTP_STATUS.NOT_FOUND, 'NOT_FOUND');
    }
 
-   await Brand.findByIdAndDelete(id);
-
-   res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: 'Brand deleted successfully',
-   });
+   return res.status(HTTP_STATUS.NO_CONTENT).send();
 };
 
-export const editBrand = async (req: Request, res: Response) => {
+export const updateBrand = async (req: Request, res: Response) => {
    const { id } = req.params;
-
    const { name, image } = req.body;
 
-   const brand = await Brand.findById(id);
+   const updatedBrand = await Brand.findByIdAndUpdate(
+      id,
+      { name, image },
+      { new: true, runValidators: true }
+   );
 
-   if (!brand) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({
-         success: false,
-         message: 'Brand not found',
-      });
+   if (!updatedBrand) {
+      throw new AppError('Brand not found', HTTP_STATUS.NOT_FOUND, 'NOT_FOUND');
    }
 
-   await Brand.findByIdAndUpdate(id, { name, image });
-
-   res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: 'Brand updated successfully',
-   });
+   return res.status(HTTP_STATUS.OK).json(updatedBrand);
 };

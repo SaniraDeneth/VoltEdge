@@ -1,19 +1,19 @@
 import { Router } from 'express';
 import {
-   addBrand,
+   createBrand,
    deleteBrand,
-   editBrand,
-   getAllBrands,
-   getBrandById,
+   getBrand,
+   getBrands,
+   updateBrand,
 } from '../controllers/brand.controller.js';
 import { asyncHandler } from '../utils/async.handler.js';
 
 const brandRoutes = Router();
 
-brandRoutes.post('/', asyncHandler(addBrand));
-brandRoutes.get('/', asyncHandler(getAllBrands));
-brandRoutes.get('/:id', asyncHandler(getBrandById));
+brandRoutes.post('/', asyncHandler(createBrand));
+brandRoutes.get('/', asyncHandler(getBrands));
+brandRoutes.get('/:id', asyncHandler(getBrand));
 brandRoutes.delete('/:id', asyncHandler(deleteBrand));
-brandRoutes.put('/:id', asyncHandler(editBrand));
+brandRoutes.put('/:id', asyncHandler(updateBrand));
 
 export default brandRoutes;

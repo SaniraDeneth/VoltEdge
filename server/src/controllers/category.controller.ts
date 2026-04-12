@@ -1,102 +1,85 @@
 import type { Request, Response } from 'express';
 import { HTTP_STATUS } from '../enums/http.status.js';
 import Category from '../models/category.model.js';
+import { AppError } from '../utils/app.error.js';
 
-export const addCategory = async (req: Request, res: Response) => {
+export const createCategory = async (req: Request, res: Response) => {
    const { name, image } = req.body;
 
    if (!name || !image) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-         success: false,
-         message: 'Please provide all the required fields',
-      });
+      throw new AppError(
+         'Please provide all the required fields',
+         HTTP_STATUS.BAD_REQUEST,
+         'VALIDATION_ERROR'
+      );
    }
 
-   const existingCategory = await Category.findOne({ name: name });
-
+   const existingCategory = await Category.findOne({ name });
    if (existingCategory) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-         success: false,
-         message: 'Category already exists.',
-      });
+      throw new AppError(
+         'Category already exists.',
+         HTTP_STATUS.BAD_REQUEST,
+         'ALREADY_EXISTS'
+      );
    }
 
-   const newCategory = await Category.create({ name, image });
+   const category = await Category.create({ name, image });
 
-   res.status(HTTP_STATUS.CREATED).json({
-      success: true,
-      message: 'Category added successfully',
-      data: newCategory,
-   });
+   return res.status(HTTP_STATUS.CREATED).json(category);
 };
 
-export const getAllCategories = async (req: Request, res: Response) => {
+export const getCategories = async (req: Request, res: Response) => {
    const categories = await Category.find();
-
-   res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: 'Categories fetched successfully',
-      data: categories,
-   });
+   return res.status(HTTP_STATUS.OK).json(categories);
 };
 
-export const getCategoryById = async (req: Request, res: Response) => {
+export const getCategory = async (req: Request, res: Response) => {
    const { id } = req.params;
 
    const category = await Category.findById(id);
-
    if (!category) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({
-         success: false,
-         message: 'Category not found',
-      });
+      throw new AppError(
+         'Category not found',
+         HTTP_STATUS.NOT_FOUND,
+         'NOT_FOUND'
+      );
    }
 
-   res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: 'Category fetched successfully',
-      data: category,
-   });
+   return res.status(HTTP_STATUS.OK).json(category);
 };
 
 export const deleteCategory = async (req: Request, res: Response) => {
    const { id } = req.params;
 
-   const category = await Category.findById(id);
-
-   if (!category) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({
-         success: false,
-         message: 'Category not found',
-      });
+   const deleted = await Category.findByIdAndDelete(id);
+   if (!deleted) {
+      throw new AppError(
+         'Category not found',
+         HTTP_STATUS.NOT_FOUND,
+         'NOT_FOUND'
+      );
    }
 
-   await Category.findByIdAndDelete(id);
-
-   res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: 'Category deleted successfully',
-   });
+   return res.status(HTTP_STATUS.NO_CONTENT).send();
 };
 
-export const editCategory = async (req: Request, res: Response) => {
+export const updateCategory = async (req: Request, res: Response) => {
    const { id } = req.params;
-
    const { name, image } = req.body;
 
-   const category = await Category.findById(id);
+   const updatedCategory = await Category.findByIdAndUpdate(
+      id,
+      { name, image },
+      { new: true, runValidators: true }
+   );
 
-   if (!category) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({
-         success: false,
-         message: 'Category not found',
-      });
+   if (!updatedCategory) {
+      throw new AppError(
+         'Category not found',
+         HTTP_STATUS.NOT_FOUND,
+         'NOT_FOUND'
+      );
    }
 
-   await Category.findByIdAndUpdate(id, { name, image });
-
-   res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: 'Category updated successfully',
-   });
+   return res.status(HTTP_STATUS.OK).json(updatedCategory);
 };
