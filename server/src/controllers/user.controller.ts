@@ -1,11 +1,13 @@
-import type { Request, Response } from 'express';
-import User, { type TUser } from '../models/user.model.js';
+import type { NextFunction, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import User, { type UserDocument } from '../models/user.model.js';
 import { HTTP_STATUS } from '../enums/http.status.js';
 import { AppError } from '../utils/app.error.js';
+import { z } from 'zod';
+import { userSchema } from '../schemas/user.schema.js';
+import jwt from 'jsonwebtoken';
 
-const generateJwtToken = (user: TUser) => {
+const generateJwtToken = (user: UserDocument) => {
    return jwt.sign(
       { email: user.email, name: user.name, role: user.role },
       process.env.JWT_SECRET as jwt.Secret,
@@ -15,16 +17,15 @@ const generateJwtToken = (user: TUser) => {
    );
 };
 
-export const register = async (req: Request, res: Response) => {
-   const { name, email, password } = req.body;
+type RegisterInput = z.infer<typeof userSchema>;
+type LoginInput = Pick<RegisterInput, 'email' | 'password'>;
 
-   if (!name || !email || !password) {
-      throw new AppError(
-         'Please provide all the required fields',
-         HTTP_STATUS.BAD_REQUEST,
-         'VALIDATION_ERROR'
-      );
-   }
+export const register = async (
+   req: Request,
+   res: Response,
+   _next: NextFunction
+) => {
+   const { name, email, password } = req.body as RegisterInput;
 
    const existingUser = await User.findOne({ email });
    if (existingUser) {
@@ -43,23 +44,18 @@ export const register = async (req: Request, res: Response) => {
       password: hashedPassword,
    });
 
-   const { password: _, ...userResponse } = user.toObject();
-
-   return res.status(HTTP_STATUS.CREATED).json(userResponse);
+   return res.status(HTTP_STATUS.CREATED).json(user.toJSON());
 };
 
-export const login = async (req: Request, res: Response) => {
-   const { email, password } = req.body;
-
-   if (!email || !password) {
-      throw new AppError(
-         'Please provide all the required fields',
-         HTTP_STATUS.BAD_REQUEST,
-         'VALIDATION_ERROR'
-      );
-   }
+export const login = async (
+   req: Request,
+   res: Response,
+   _next: NextFunction
+) => {
+   const { email, password } = req.body as LoginInput;
 
    const user = await User.findOne({ email });
+
    if (!user) {
       throw new AppError(
          'User not found',
@@ -79,7 +75,5 @@ export const login = async (req: Request, res: Response) => {
 
    const token = generateJwtToken(user);
 
-   return res.status(HTTP_STATUS.OK).json({
-      token,
-   });
+   return res.status(HTTP_STATUS.OK).json({ token });
 };

@@ -1,6 +1,15 @@
-import mongoose, { Schema, type InferSchemaType } from 'mongoose';
+import mongoose, { Schema, type HydratedDocument } from 'mongoose';
 
-const userSchema = new Schema(
+type User = {
+   name: string;
+   email: string;
+   password: string;
+   role: 'admin' | 'user';
+};
+
+export type UserDocument = HydratedDocument<User>;
+
+const userSchema = new Schema<User>(
    {
       name: {
          type: String,
@@ -25,18 +34,17 @@ const userSchema = new Schema(
       },
    },
    {
+      timestamps: true,
       toJSON: {
          virtuals: true,
          versionKey: false,
          transform: (_doc, ret) => {
-            const { _id: _, __v: __, ...rest } = ret;
+            const { _id: _, __v: __, password: ___, ...rest } = ret;
             return rest;
          },
       },
    }
 );
 
-export type TUser = InferSchemaType<typeof userSchema>;
-
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model<User>('User', userSchema);
 export default User;
