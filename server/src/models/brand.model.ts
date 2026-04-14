@@ -1,6 +1,13 @@
-import mongoose, { Schema, type InferSchemaType } from 'mongoose';
+import mongoose, { Schema, type HydratedDocument } from 'mongoose';
 
-const brandSchema = new Schema(
+type Brand = {
+   name: string;
+   image: string;
+};
+
+export type BrandDocument = HydratedDocument<Brand>;
+
+const brandSchema = new Schema<Brand>(
    {
       name: {
          type: String,
@@ -25,7 +32,5 @@ const brandSchema = new Schema(
    }
 );
 
-export type TBrand = InferSchemaType<typeof brandSchema>;
-
-const Brand = mongoose.model('Brand', brandSchema);
+const Brand = mongoose.model<Brand>('Brand', brandSchema);
 export default Brand;
