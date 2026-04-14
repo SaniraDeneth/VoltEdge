@@ -7,13 +7,33 @@ import {
    getProducts,
 } from '../controllers/product.controller.js';
 import { asyncHandler } from '../utils/async.handler.js';
+import { protect, restrictTo } from '../middlewares/auth.middleware.js';
+import { validate } from '../middlewares/validate.middleware.js';
+import productSchema from '../schemas/product.schema.js';
+import { idParamSchema } from '../schemas/common.schema.js';
 
 const productRoutes = Router();
 
-productRoutes.post('/', asyncHandler(addProduct));
-productRoutes.put('/:id', asyncHandler(editProduct));
 productRoutes.get('/', asyncHandler(getProducts));
-productRoutes.get('/:id', asyncHandler(getProduct));
-productRoutes.delete('/:id', asyncHandler(deleteProduct));
+productRoutes.get(
+   '/:id',
+   validate(idParamSchema, 'params'),
+   asyncHandler(getProduct)
+);
+
+productRoutes.use(protect, restrictTo('admin'));
+
+productRoutes.post('/', validate(productSchema), asyncHandler(addProduct));
+productRoutes.put(
+   '/:id',
+   validate(idParamSchema, 'params'),
+   validate(productSchema),
+   asyncHandler(editProduct)
+);
+productRoutes.delete(
+   '/:id',
+   validate(idParamSchema, 'params'),
+   asyncHandler(deleteProduct)
+);
 
 export default productRoutes;
