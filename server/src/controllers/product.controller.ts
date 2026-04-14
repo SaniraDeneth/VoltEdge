@@ -1,70 +1,29 @@
-import type { Request, Response } from 'express';
+import type { Response, Request, NextFunction } from 'express';
 import { AppError } from '../utils/app.error.js';
 import { HTTP_STATUS } from '../enums/http.status.js';
 import Product from '../models/product.model.js';
+import { z } from 'zod';
+import productSchema from '../schemas/product.schema.js';
+import { idParamSchema } from '../schemas/common.schema.js';
 
-export const addProduct = async (req: Request, res: Response) => {
-   const {
-      name,
-      description,
-      price,
-      categoryId,
-      brandId,
-      image,
-      countInStock,
-      availability,
-      status,
-   } = req.body;
+type ProductRequest = z.infer<typeof productSchema>;
+type IdParam = z.infer<typeof idParamSchema>;
 
-   if (
-      !name ||
-      !description ||
-      !price ||
-      !categoryId ||
-      !brandId ||
-      !image ||
-      !countInStock ||
-      !availability ||
-      !status
-   ) {
-      throw new AppError(
-         'Please provide all the required fields',
-         HTTP_STATUS.BAD_REQUEST,
-         'VALIDATION_ERROR'
-      );
-   }
-
-   const existingProduct = await Product.findOne({ name });
-   if (existingProduct) {
-      throw new AppError(
-         'Product already exists.',
-         HTTP_STATUS.BAD_REQUEST,
-         'ALREADY_EXISTS'
-      );
-   }
-
-   const product = await Product.create({
-      name,
-      description,
-      price,
-      categoryId,
-      brandId,
-      image,
-      countInStock,
-      availability,
-      status,
-   });
-
-   return res.status(HTTP_STATUS.CREATED).json(product);
-};
-
-export const getProducts = async (req: Request, res: Response) => {
+export const getProducts = async (
+   _req: Request,
+   res: Response,
+   _next: NextFunction
+) => {
    const products = await Product.find();
    return res.status(HTTP_STATUS.OK).json(products);
 };
 
-export const getProduct = async (req: Request, res: Response) => {
-   const { id } = req.params;
+export const getProduct = async (
+   req: Request,
+   res: Response,
+   _next: NextFunction
+) => {
+   const { id } = req.params as IdParam;
 
    const product = await Product.findById(id);
    if (!product) {
@@ -78,35 +37,38 @@ export const getProduct = async (req: Request, res: Response) => {
    return res.status(HTTP_STATUS.OK).json(product);
 };
 
-export const editProduct = async (req: Request, res: Response) => {
-   const { id } = req.params;
-   const {
-      name,
-      description,
-      price,
-      categoryId,
-      brandId,
-      image,
-      countInStock,
-      availability,
-      status,
-   } = req.body;
+export const addProduct = async (
+   req: Request,
+   res: Response,
+   _next: NextFunction
+) => {
+   const productData = req.body as ProductRequest;
 
-   const updatedProduct = await Product.findByIdAndUpdate(
-      id,
-      {
-         name,
-         description,
-         price,
-         categoryId,
-         brandId,
-         image,
-         countInStock,
-         availability,
-         status,
-      },
-      { new: true, runValidators: true }
-   );
+   const existingProduct = await Product.findOne({ name: productData.name });
+   if (existingProduct) {
+      throw new AppError(
+         'Product with this name already exists',
+         HTTP_STATUS.BAD_REQUEST,
+         'ALREADY_EXISTS'
+      );
+   }
+
+   const product = await Product.create(productData);
+
+   return res.status(HTTP_STATUS.CREATED).json(product);
+};
+
+export const editProduct = async (
+   req: Request,
+   res: Response,
+   _next: NextFunction
+) => {
+   const { id } = req.params as IdParam;
+   const updateData = req.body as ProductRequest;
+
+   const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
+      new: true,
+   });
 
    if (!updatedProduct) {
       throw new AppError(
@@ -119,8 +81,12 @@ export const editProduct = async (req: Request, res: Response) => {
    return res.status(HTTP_STATUS.OK).json(updatedProduct);
 };
 
-export const deleteProduct = async (req: Request, res: Response) => {
-   const { id } = req.params;
+export const deleteProduct = async (
+   req: Request,
+   res: Response,
+   _next: NextFunction
+) => {
+   const { id } = req.params as IdParam;
 
    const deletedProduct = await Product.findByIdAndDelete(id);
    if (!deletedProduct) {

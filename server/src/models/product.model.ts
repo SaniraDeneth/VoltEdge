@@ -1,6 +1,20 @@
-import mongoose, { Schema, type InferSchemaType } from 'mongoose';
+import mongoose, { Schema, type HydratedDocument } from 'mongoose';
 
-const productSchema = new Schema(
+type Product = {
+   name: string;
+   price: number;
+   description: string;
+   image: string;
+   categoryId: mongoose.Types.ObjectId;
+   brandId: mongoose.Types.ObjectId;
+   countInStock: number;
+   availability: boolean;
+   status: 'brandnew' | 'used' | 'refurbished';
+};
+
+export type ProductDocument = HydratedDocument<Product>;
+
+const productSchema = new Schema<Product>(
    {
       name: {
          type: String,
@@ -37,12 +51,10 @@ const productSchema = new Schema(
       },
       availability: {
          type: Boolean,
-         required: true,
          default: true,
       },
       status: {
          type: String,
-         required: true,
          enum: ['brandnew', 'used', 'refurbished'],
          default: 'brandnew',
       },
@@ -60,7 +72,5 @@ const productSchema = new Schema(
    }
 );
 
-export type TProduct = InferSchemaType<typeof productSchema>;
-
-const Product = mongoose.model('Product', productSchema);
+const Product = mongoose.model<Product>('Product', productSchema);
 export default Product;
