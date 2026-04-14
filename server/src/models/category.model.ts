@@ -1,6 +1,13 @@
-import mongoose, { Schema, type InferSchemaType } from 'mongoose';
+import mongoose, { Schema, type HydratedDocument } from 'mongoose';
 
-const categorySchema = new Schema(
+type Category = {
+   name: string;
+   image: string;
+};
+
+export type CategoryDocument = HydratedDocument<Category>;
+
+const categorySchema = new Schema<Category>(
    {
       name: {
          type: String,
@@ -25,7 +32,5 @@ const categorySchema = new Schema(
    }
 );
 
-export type TCategory = InferSchemaType<typeof categorySchema>;
-
-const Category = mongoose.model('Category', categorySchema);
+const Category = mongoose.model<Category>('Category', categorySchema);
 export default Category;
