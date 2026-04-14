@@ -8,23 +8,26 @@ const cartModel = new Schema(
          required: true,
       },
       items: [
-         {
-            productId: {
-               type: Schema.Types.ObjectId,
-               ref: 'Product',
-               required: true,
+         new Schema(
+            {
+               productId: {
+                  type: Schema.Types.ObjectId,
+                  ref: 'Product',
+                  required: true,
+               },
+               quantity: {
+                  type: Number,
+                  required: true,
+                  min: 1,
+               },
+               price: {
+                  type: Number,
+                  required: true,
+                  min: 0,
+               },
             },
-            quantity: {
-               type: Number,
-               required: true,
-               min: 1,
-            },
-            price: {
-               type: Number,
-               required: true,
-               min: 0,
-            },
-         },
+            { _id: false }
+         ),
       ],
       totalAmount: {
          type: Number,
@@ -45,7 +48,7 @@ const cartModel = new Schema(
    }
 );
 
-export type Cart = InferSchemaType<typeof cartModel>;
+export type TCart = InferSchemaType<typeof cartModel>;
 
 const Cart = mongoose.model('Cart', cartModel);
 export default Cart;

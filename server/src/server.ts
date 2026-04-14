@@ -6,6 +6,7 @@ import categoryRoutes from './routes/category.routes.js';
 import brandRoutes from './routes/brand.routes.js';
 import { globalExceptionHandler } from './middlewares/error.middleware.js';
 import productRoutes from './routes/product.routes.js';
+import cartRoutes from './routes/cart.routes.js';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
 
 app.use(globalExceptionHandler);
 
