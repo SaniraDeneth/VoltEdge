@@ -43,7 +43,6 @@ export const register = async (req: Request, res: Response) => {
       password: hashedPassword,
    });
 
-   // eslint-disable-next-line @typescript-eslint/no-unused-vars
    const { password: _, ...userResponse } = user.toObject();
 
    return res.status(HTTP_STATUS.CREATED).json(userResponse);
