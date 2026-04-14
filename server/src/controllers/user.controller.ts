@@ -1,22 +1,12 @@
 import type { NextFunction, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
-import User, { type UserDocument } from '../models/user.model.js';
+import User from '../models/user.model.js';
 import { HTTP_STATUS } from '../enums/http.status.js';
 import { AppError } from '../utils/app.error.js';
 import { z } from 'zod';
 import { userSchema } from '../schemas/user.schema.js';
-import jwt from 'jsonwebtoken';
-import { ENV } from '../config/env.js';
-
-const generateJwtToken = (user: UserDocument) => {
-   return jwt.sign(
-      { email: user.email, name: user.name, role: user.role },
-      ENV.JWT_SECRET,
-      {
-         expiresIn: '7d',
-      }
-   );
-};
+import { generateJwtToken } from '../utils/jwt.js';
+import type { ProtectedRequest } from '../middlewares/auth.middleware.js';
 
 type RegisterInput = z.infer<typeof userSchema>;
 type LoginInput = Pick<RegisterInput, 'email' | 'password'>;
@@ -74,7 +64,25 @@ export const login = async (
       );
    }
 
-   const token = generateJwtToken(user);
+   const payload = {
+      email: user.email,
+      name: user.name,
+      role: user.role,
+   };
+   const token = generateJwtToken(payload);
 
    return res.status(HTTP_STATUS.OK).json({ token });
+};
+
+export const getMe = async (
+   req: ProtectedRequest,
+   res: Response,
+   _next: NextFunction
+) => {
+   const user = await User.findById(req.user.id);
+   if (!user) {
+      throw new AppError('User not found', HTTP_STATUS.NOT_FOUND, 'NOT_FOUND');
+   }
+
+   return res.status(HTTP_STATUS.OK).json(user.toJSON());
 };
