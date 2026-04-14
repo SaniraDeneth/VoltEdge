@@ -49,10 +49,18 @@ const productSchema = new Schema(
    },
    {
       timestamps: true,
+      toJSON: {
+         virtuals: true,
+         versionKey: false,
+         transform: (_doc, ret) => {
+            const { _id: _, __v: __, ...rest } = ret;
+            return rest;
+         },
+      },
    }
 );
 
-export type Product = InferSchemaType<typeof productSchema>;
+export type TProduct = InferSchemaType<typeof productSchema>;
 
 const Product = mongoose.model('Product', productSchema);
 export default Product;

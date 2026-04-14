@@ -34,6 +34,14 @@ const cartModel = new Schema(
    },
    {
       timestamps: true,
+      toJSON: {
+         virtuals: true,
+         versionKey: false,
+         transform: (_doc, ret) => {
+            const { _id: _, __v: __, ...rest } = ret;
+            return rest;
+         },
+      },
    }
 );
 
