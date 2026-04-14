@@ -1,6 +1,18 @@
-import mongoose, { Schema, type InferSchemaType } from 'mongoose';
+import mongoose, { Schema, type HydratedDocument } from 'mongoose';
 
-const cartModel = new Schema(
+type Cart = {
+   userId: mongoose.Types.ObjectId;
+   items: {
+      productId: mongoose.Types.ObjectId;
+      quantity: number;
+      price: number;
+   }[];
+   totalAmount: number;
+};
+
+export type CartDocument = HydratedDocument<Cart>;
+
+const cartModel = new Schema<Cart>(
    {
       userId: {
          type: Schema.Types.ObjectId,
@@ -48,7 +60,5 @@ const cartModel = new Schema(
    }
 );
 
-export type TCart = InferSchemaType<typeof cartModel>;
-
-const Cart = mongoose.model('Cart', cartModel);
+const Cart = mongoose.model<Cart>('Cart', cartModel);
 export default Cart;
