@@ -6,11 +6,12 @@ import { AppError } from '../utils/app.error.js';
 import { z } from 'zod';
 import { userSchema } from '../schemas/user.schema.js';
 import jwt from 'jsonwebtoken';
+import { ENV } from '../config/env.js';
 
 const generateJwtToken = (user: UserDocument) => {
    return jwt.sign(
       { email: user.email, name: user.name, role: user.role },
-      process.env.JWT_SECRET as jwt.Secret,
+      ENV.JWT_SECRET,
       {
          expiresIn: '7d',
       }

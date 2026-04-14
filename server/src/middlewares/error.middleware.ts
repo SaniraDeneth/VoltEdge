@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { HTTP_STATUS } from '../enums/http.status.js';
 import { AppError } from '../utils/app.error.js';
+import { ENV } from '../config/env.js';
 
 interface IErrorResponse {
    error: {
@@ -35,7 +36,7 @@ export const globalExceptionHandler = (
       errorResponse.error.details = err.details;
    }
 
-   if (process.env.NODE_ENV !== 'production' && err.stack) {
+   if (ENV.NODE_ENV === 'development' && err.stack) {
       errorResponse.error.stack = err.stack;
       console.error(err.stack);
    }

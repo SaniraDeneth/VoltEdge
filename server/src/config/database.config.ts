@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
+import { ENV } from './env.js';
 
 const connectDB = async () => {
-   const mongodbUri = process.env.MONGODB_URI;
+   const mongodbUri = ENV.MONGODB_URI;
    if (!mongodbUri) {
       throw new Error('Please provide a MongoDB URI');
    }
