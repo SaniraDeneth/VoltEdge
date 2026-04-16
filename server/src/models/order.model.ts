@@ -1,6 +1,19 @@
-import mongoose, { Schema, type InferSchemaType } from 'mongoose';
+import mongoose, { Schema, type HydratedDocument } from 'mongoose';
 
-const orderSchema = new Schema(
+type Order = {
+   userId: mongoose.Types.ObjectId;
+   items: {
+      productId: mongoose.Types.ObjectId;
+      quantity: number;
+      price: number;
+   }[];
+   totalAmount: number;
+   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+};
+
+export type OrderDocument = HydratedDocument<Order>;
+
+const orderSchema = new Schema<Order>(
    {
       userId: {
          type: Schema.Types.ObjectId,
@@ -54,7 +67,5 @@ const orderSchema = new Schema(
    }
 );
 
-export type Order = InferSchemaType<typeof orderSchema>;
-
-const Order = mongoose.model('Order', orderSchema);
+const Order = mongoose.model<Order>('Order', orderSchema);
 export default Order;
