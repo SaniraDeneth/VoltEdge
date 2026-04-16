@@ -6,6 +6,7 @@ import brandRoutes from './routes/brand.routes.js';
 import { globalExceptionHandler } from './middlewares/error.middleware.js';
 import productRoutes from './routes/product.routes.js';
 import cartRoutes from './routes/cart.routes.js';
+import orderRoutes from './routes/order.routes.js';
 import { ENV } from './config/env.js';
 
 connectDB();
@@ -17,6 +18,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.use(globalExceptionHandler);
 
