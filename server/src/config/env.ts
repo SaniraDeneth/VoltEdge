@@ -1,25 +1,30 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-if (!process.env.JWT_SECRET) {
-   throw new Error('FATAL ERROR: JWT_SECRET is not defined in .env file');
-}
+const requiredEnvVars = [
+   'JWT_SECRET',
+   'PORT',
+   'MONGODB_URI',
+   'NODE_ENV',
+   'CLOUDINARY_CLOUD_NAME',
+   'CLOUDINARY_API_KEY',
+   'CLOUDINARY_API_SECRET',
+] as const;
 
-if (!process.env.PORT) {
-   throw new Error('FATAL ERROR: PORT is not defined in .env file');
-}
-
-if (!process.env.MONGODB_URI) {
-   throw new Error('FATAL ERROR: MONGODB_URI is not defined in .env file');
-}
-
-if (!process.env.NODE_ENV) {
-   throw new Error('FATAL ERROR: NODE_ENV is not defined in .env file');
+for (const envVar of requiredEnvVars) {
+   if (!process.env[envVar]) {
+      throw new Error(`FATAL ERROR: ${envVar} is not defined in .env file`);
+   }
 }
 
 export const ENV = {
-   JWT_SECRET: process.env.JWT_SECRET,
-   NODE_ENV: process.env.NODE_ENV,
-   PORT: process.env.PORT,
-   MONGODB_URI: process.env.MONGODB_URI,
+   JWT_SECRET: process.env.JWT_SECRET!,
+   NODE_ENV: process.env.NODE_ENV!,
+   PORT: process.env.PORT!,
+   MONGODB_URI: process.env.MONGODB_URI!,
+   CLOUDINARY: {
+      CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME!,
+      API_KEY: process.env.CLOUDINARY_API_KEY!,
+      API_SECRET: process.env.CLOUDINARY_API_SECRET!,
+   },
 } as const;
