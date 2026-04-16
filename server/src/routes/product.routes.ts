@@ -11,6 +11,8 @@ import { protect, restrictTo } from '../middlewares/auth.middleware.js';
 import { validate } from '../middlewares/validate.middleware.js';
 import productSchema from '../schemas/product.schema.js';
 import { idParamSchema } from '../schemas/common.schema.js';
+import { upload } from '../middlewares/upload.middleware.js';
+import { processImages } from '../middlewares/image.middleware.js';
 
 const productRoutes = Router();
 
@@ -23,13 +25,23 @@ productRoutes.get(
 
 productRoutes.use(protect, restrictTo('admin'));
 
-productRoutes.post('/', validate(productSchema), asyncHandler(addProduct));
+productRoutes.post(
+   '/',
+   upload.array('images', 5),
+   processImages,
+   validate(productSchema),
+   asyncHandler(addProduct)
+);
+
 productRoutes.put(
    '/:id',
+   upload.array('images', 5),
+   processImages,
    validate(idParamSchema, 'params'),
    validate(productSchema),
    asyncHandler(editProduct)
 );
+
 productRoutes.delete(
    '/:id',
    validate(idParamSchema, 'params'),

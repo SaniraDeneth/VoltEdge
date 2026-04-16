@@ -4,7 +4,7 @@ type Product = {
    name: string;
    price: number;
    description: string;
-   image: string;
+   images: string[];
    categoryId: mongoose.Types.ObjectId;
    brandId: mongoose.Types.ObjectId;
    countInStock: number;
@@ -30,10 +30,12 @@ const productSchema = new Schema<Product>(
          type: String,
          required: true,
       },
-      image: {
-         type: String,
-         required: true,
-      },
+      images: [
+         {
+            type: String,
+            required: true,
+         },
+      ],
       categoryId: {
          type: Schema.Types.ObjectId,
          ref: 'Category',
