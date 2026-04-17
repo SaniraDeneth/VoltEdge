@@ -5,8 +5,8 @@ type Product = {
    price: number;
    description: string;
    images: string[];
-   categoryId: mongoose.Types.ObjectId;
-   brandId: mongoose.Types.ObjectId;
+   category: mongoose.Types.ObjectId;
+   brand: mongoose.Types.ObjectId;
    countInStock: number;
    availability: boolean;
    status: 'brandnew' | 'used' | 'refurbished';
@@ -36,16 +36,17 @@ const productSchema = new Schema<Product>(
             required: true,
          },
       ],
-      categoryId: {
+      category: {
          type: Schema.Types.ObjectId,
          ref: 'Category',
          required: true,
       },
-      brandId: {
+      brand: {
          type: Schema.Types.ObjectId,
          ref: 'Brand',
          required: true,
       },
+
       countInStock: {
          type: Number,
          required: true,

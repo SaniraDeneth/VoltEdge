@@ -13,12 +13,14 @@ const productSchema = z.object({
    images: z
       .array(z.string().min(1, 'Image URL must not be empty'))
       .min(1, 'At least one image is required'),
-   categoryId: z
+   category: z
       .string({ message: 'Category is required' })
       .min(1, 'Category must be at least 1 character'),
-   brandId: z
+
+   brand: z
       .string({ message: 'Brand is required' })
       .min(1, 'Brand must be at least 1 character'),
+
    countInStock: z.coerce
       .number()
       .min(0, 'Count in stock must be non-negative'),
