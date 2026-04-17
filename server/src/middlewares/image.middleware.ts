@@ -8,32 +8,43 @@ export const processImages = (
 ) => {
    let existingImages: string[] = [];
 
-   if (req.body.images) {
+   const rawImages = req.body.images || req.body.image;
+   if (rawImages) {
       try {
          const parsed =
-            typeof req.body.images === 'string'
-               ? JSON.parse(req.body.images)
-               : req.body.images;
+            typeof rawImages === 'string' ? JSON.parse(rawImages) : rawImages;
          existingImages = Array.isArray(parsed) ? parsed : [parsed];
       } catch {
-         existingImages = [req.body.images];
+         existingImages = [rawImages];
       }
    }
 
    const newImages =
       req.files && Array.isArray(req.files)
          ? (req.files as Express.Multer.File[]).map((file) => file.path)
-         : [];
+         : req.file
+           ? [(req.file as Express.Multer.File).path]
+           : [];
 
    req.body.images = [...existingImages, ...newImages];
+
+   if (req.body.images.length > 0) {
+      req.body.image = req.body.images[0];
+   }
+
    next();
 };
 
-export const cleanupUploadedFiles = async (files?: Express.Multer.File[]) => {
-   if (!files || !Array.isArray(files) || files.length === 0) return;
+export const cleanupUploadedFiles = async (
+   files?: Express.Multer.File[] | Express.Multer.File
+) => {
+   if (!files) return;
+
+   const filesArray = Array.isArray(files) ? files : [files];
+   if (filesArray.length === 0) return;
 
    try {
-      const deletePromises = files.map((file: Express.Multer.File) => {
+      const deletePromises = filesArray.map((file: Express.Multer.File) => {
          const publicId = file.filename;
          return cloudinary.uploader.destroy(publicId);
       });
@@ -44,11 +55,14 @@ export const cleanupUploadedFiles = async (files?: Express.Multer.File[]) => {
    }
 };
 
-export const deleteImagesFromUrls = async (urls: string[]) => {
-   if (!urls || urls.length === 0) return;
+export const deleteImagesFromUrls = async (urls: string | string[]) => {
+   if (!urls) return;
+
+   const urlArray = Array.isArray(urls) ? urls : [urls];
+   if (urlArray.length === 0) return;
 
    try {
-      const deletePromises = urls.map((url) => {
+      const deletePromises = urlArray.map((url) => {
          const parts = url.split('/');
          const fileNameWithExt = parts.pop() || '';
          const folderName = parts.pop() || '';
