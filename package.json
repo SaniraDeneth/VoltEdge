@@ -1,4 +1,9 @@
 {
+   "private": true,
+   "workspaces": [
+      "client",
+      "server"
+   ],
    "scripts": {
       "format": "prettier --write .",
       "lint": "eslint . --config eslint.config.mjs",
@@ -9,6 +14,7 @@
    },
    "devDependencies": {
       "@eslint/js": "^10.0.1",
+      "@next/eslint-plugin-next": "^16.2.4",
       "eslint": "^10.2.0",
       "eslint-config-prettier": "^10.1.8",
       "husky": "^9.1.7",
