@@ -7,6 +7,13 @@ export default tseslint.config(
    eslint.configs.recommended,
    ...tseslint.configs.recommended,
    {
+      languageOptions: {
+         parserOptions: {
+            tsconfigRootDir: import.meta.dirname,
+         },
+      },
+   },
+   {
       ignores: ['**/node_modules/', '**/dist/', 'client/.next/'],
    },
    {
@@ -14,6 +21,7 @@ export default tseslint.config(
       languageOptions: {
          parserOptions: {
             project: './server/tsconfig.json',
+            tsconfigRootDir: import.meta.dirname,
          },
       },
       rules: {
@@ -27,5 +35,5 @@ export default tseslint.config(
       },
    },
    ...nextRules,
-   eslintConfigPrettier // Must be last to override formatting conflicts
+   eslintConfigPrettier 
 );

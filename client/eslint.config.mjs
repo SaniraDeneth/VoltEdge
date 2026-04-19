@@ -14,7 +14,8 @@ export const nextRules = [
       },
       languageOptions: {
          parserOptions: {
-            project: './client/tsconfig.json',
+            project: './tsconfig.json',
+            tsconfigRootDir: import.meta.dirname,
          },
       },
       settings: {
