@@ -31,7 +31,7 @@ export default function Navbar() {
             className={`pointer-events-auto relative w-full overflow-hidden transition-[max-width,border-radius,background,padding,box-shadow] duration-500 ease-(--ease-spring) ${
                isScrolled
                   ? `glass max-w-7xl py-1 shadow-lg ${isMobileMenuOpen ? 'rounded-[24px]' : 'rounded-[32px]'}`
-                  : `max-w-7xl border border-border/40 bg-background/80 py-3 backdrop-blur-xl ${isMobileMenuOpen ? 'rounded-[24px]' : 'rounded-[24px]'}`
+                  : `max-w-7xl border border-border/40 py-3 backdrop-blur-xl ${isMobileMenuOpen ? 'rounded-[24px]' : 'rounded-[24px]'}`
             }`}
          >
             <div className="flex h-14 items-center justify-between px-6 lg:px-8">
