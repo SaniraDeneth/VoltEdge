@@ -3,11 +3,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Menu, X, Zap, ShoppingBag } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
    const [isScrolled, setIsScrolled] = useState(false);
    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
    const [isLoggedIn] = useState(true);
+
+   const pathname = usePathname();
 
    const navLinks = [
       { name: 'Home', href: '/' },
@@ -21,9 +24,25 @@ export default function Navbar() {
       const handleScroll = () => {
          setIsScrolled(window.scrollY > 20);
       };
-      window.addEventListener('scroll', handleScroll);
-      return () => window.removeEventListener('scroll', handleScroll);
-   }, []);
+
+      setIsMobileMenuOpen(false);
+
+      handleScroll();
+
+      const scrollCheckInterval = setInterval(handleScroll, 50);
+
+      const stopIntervalTimeout = setTimeout(() => {
+         clearInterval(scrollCheckInterval);
+      }, 200);
+
+      window.addEventListener('scroll', handleScroll, { passive: true });
+
+      return () => {
+         window.removeEventListener('scroll', handleScroll);
+         clearInterval(scrollCheckInterval);
+         clearTimeout(stopIntervalTimeout);
+      };
+   }, [pathname]);
 
    return (
       <div className="fixed top-0 z-50 flex w-full justify-center px-4 pt-4 transition-all duration-500 pointer-events-none">
