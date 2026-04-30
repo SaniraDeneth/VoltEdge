@@ -1,19 +1,216 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@layer base {
+   :root {
+      --background: 0 0% 100%;
+      --foreground: 220 14% 8%;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+      --surface: 220 20% 98%;
+      --surface-elevated: 0 0% 100%;
+
+      --card: 0 0% 100%;
+      --card-foreground: 220 14% 8%;
+
+      --popover: 0 0% 100%;
+      --popover-foreground: 220 14% 8%;
+
+      --primary: 220 14% 8%;
+      --primary-foreground: 0 0% 100%;
+
+      --secondary: 220 20% 96%;
+      --secondary-foreground: 220 14% 14%;
+
+      --muted: 220 14% 96%;
+      --muted-foreground: 220 8% 46%;
+
+      --accent: 218 100% 56%;
+      --accent-foreground: 0 0% 100%;
+      --accent-glow: 218 100% 64%;
+
+      --destructive: 0 72% 51%;
+      --destructive-foreground: 0 0% 100%;
+
+      --border: 220 14% 92%;
+      --input: 220 14% 92%;
+      --ring: 218 100% 56%;
+
+      --radius: 1rem;
+
+      --noir: 220 14% 6%;
+      --noir-foreground: 220 10% 92%;
+      --noir-muted: 220 10% 60%;
+
+      --gradient-hero: radial-gradient(
+         ellipse at top,
+         hsl(220 30% 98%) 0%,
+         hsl(220 20% 95%) 60%,
+         hsl(220 14% 92%) 100%
+      );
+      --gradient-noir: radial-gradient(
+         ellipse at center top,
+         hsl(220 14% 14%) 0%,
+         hsl(220 14% 6%) 70%
+      );
+      --gradient-accent: linear-gradient(
+         135deg,
+         hsl(var(--accent)) 0%,
+         hsl(var(--accent-glow)) 100%
+      );
+      --gradient-shine: linear-gradient(
+         135deg,
+         hsl(0 0% 100% / 0.7) 0%,
+         hsl(0 0% 100% / 0.2) 100%
+      );
+
+      --shadow-sm: 0 1px 2px hsl(220 14% 8% / 0.04);
+      --shadow-md: 0 4px 16px hsl(220 14% 8% / 0.06);
+      --shadow-lg: 0 24px 60px -20px hsl(220 14% 8% / 0.18);
+      --shadow-glow: 0 0 80px hsl(var(--accent) / 0.25);
+
+      --ease-apple: cubic-bezier(0.4, 0, 0.2, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      --sidebar-background: 0 0% 98%;
+      --sidebar-foreground: 240 5.3% 26.1%;
+      --sidebar-primary: 240 5.9% 10%;
+      --sidebar-primary-foreground: 0 0% 98%;
+      --sidebar-accent: 240 4.8% 95.9%;
+      --sidebar-accent-foreground: 240 5.9% 10%;
+      --sidebar-border: 220 13% 91%;
+      --sidebar-ring: 217.2 91.2% 59.8%;
+   }
+
+   @theme {
+      --font-display:
+         'Manrope', -apple-system, 'SF Pro Display', system-ui, sans-serif;
+      --background-gradient-hero: var(--gradient-hero);
+      --background-gradient-noir: var(--gradient-noir);
+      --background-gradient-accent: var(--gradient-accent);
+
+      /* Color mappings */
+      --color-background: hsl(var(--background));
+      --color-foreground: hsl(var(--foreground));
+      --color-card: hsl(var(--card));
+      --color-card-foreground: hsl(var(--card-foreground));
+      --color-popover: hsl(var(--popover));
+      --color-popover-foreground: hsl(var(--popover-foreground));
+      --color-primary: hsl(var(--primary));
+      --color-primary-foreground: hsl(var(--primary-foreground));
+      --color-secondary: hsl(var(--secondary));
+      --color-secondary-foreground: hsl(var(--secondary-foreground));
+      --color-muted: hsl(var(--muted));
+      --color-muted-foreground: hsl(var(--muted-foreground));
+      --color-accent: hsl(var(--accent));
+      --color-accent-foreground: hsl(var(--accent-foreground));
+      --color-destructive: hsl(var(--destructive));
+      --color-destructive-foreground: hsl(var(--destructive-foreground));
+      --color-border: hsl(var(--border));
+      --color-input: hsl(var(--input));
+      --color-ring: hsl(var(--ring));
+   }
+
+   .dark {
+      --background: 220 14% 6%;
+      --foreground: 220 10% 96%;
+      --surface: 220 14% 9%;
+      --surface-elevated: 220 14% 11%;
+      --card: 220 14% 9%;
+      --card-foreground: 220 10% 96%;
+      --popover: 220 14% 9%;
+      --popover-foreground: 220 10% 96%;
+      --primary: 0 0% 100%;
+      --primary-foreground: 220 14% 8%;
+      --secondary: 220 14% 14%;
+      --secondary-foreground: 220 10% 96%;
+      --muted: 220 14% 14%;
+      --muted-foreground: 220 8% 65%;
+      --accent: 218 100% 60%;
+      --accent-foreground: 0 0% 100%;
+      --destructive: 0 62.8% 50%;
+      --destructive-foreground: 220 10% 96%;
+      --border: 220 14% 16%;
+      --input: 220 14% 16%;
+      --ring: 218 100% 60%;
+   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@layer base {
+   * {
+      @apply border-border;
+   }
+   html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      scroll-behavior: smooth;
+   }
+   body {
+      @apply bg-background text-foreground;
+      font-family:
+         'Inter',
+         -apple-system,
+         BlinkMacSystemFont,
+         'SF Pro Display',
+         system-ui,
+         sans-serif;
+      font-feature-settings: 'cv11', 'ss01';
+   }
+   h1,
+   h2,
+   h3,
+   h4 {
+      font-family:
+         'Manrope',
+         -apple-system,
+         'SF Pro Display',
+         system-ui,
+         sans-serif;
+      @apply tracking-tight;
+   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+   .glass {
+      @apply bg-background/70 backdrop-blur-xl backdrop-saturate-150 border border-border/60;
+   }
+   .glass-dark {
+      background: hsl(220 14% 8% / 0.6);
+      @apply backdrop-blur-xl backdrop-saturate-150 border border-white/10;
+   }
+   .text-balance {
+      text-wrap: balance;
+   }
+   .container-px {
+      @apply px-5 sm:px-8 lg:px-12;
+   }
+
+   .hover-lift {
+      transition:
+         transform 0.5s var(--ease-apple),
+         box-shadow 0.5s var(--ease-apple);
+   }
+   .hover-lift:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-lg);
+   }
+
+   .product-card-img {
+      transition: transform 0.7s var(--ease-apple);
+   }
+   .group:hover .product-card-img {
+      transform: scale(1.06);
+   }
+
+   .noir {
+      background: var(--gradient-noir);
+      color: hsl(var(--noir-foreground));
+   }
+}
+
+@layer utilities {
+   .no-scrollbar::-webkit-scrollbar {
+      display: none;
+   }
+   .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+   }
 }
