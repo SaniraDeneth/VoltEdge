@@ -42,9 +42,20 @@ const CategoryCard = ({
 
 export default function CategoryGrid() {
    return (
-      <section className="w-full bg-background py-16 sm:py-24">
+      <section className="w-full bg-background pt-28 pb-12 lg:pt-26 lg:pb-16">
          <div className="container-px mx-auto max-w-7xl">
-            <div className="grid h-auto grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:h-[600px] lg:grid-cols-4 lg:grid-rows-2">
+            <div className="mb-12 flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
+               <div className="space-y-2">
+                  <h2 className="font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+                     Browse Categories
+                  </h2>
+                  <p className="text-base font-medium text-muted-foreground">
+                     Find the perfect device for your lifestyle.
+                  </p>
+               </div>
+            </div>
+
+            <div className="grid h-auto grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:h-[500px] lg:grid-cols-4 lg:grid-rows-2">
                <CategoryCard
                   href="/smartphones"
                   title="Smartphones"

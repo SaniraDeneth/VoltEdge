@@ -106,6 +106,10 @@
       --color-border: hsl(var(--border));
       --color-input: hsl(var(--input));
       --color-ring: hsl(var(--ring));
+      
+      --color-noir: hsl(var(--noir));
+      --color-noir-foreground: hsl(var(--noir-foreground));
+      --color-noir-muted: hsl(var(--noir-muted));
    }
 
    .dark {

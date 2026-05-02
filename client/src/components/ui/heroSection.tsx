@@ -24,11 +24,11 @@ export default function HeroSection() {
             </div>
 
             <div className="relative z-10 flex flex-col text-center -translate-y-12 lg:-translate-y-20">
-               <h1 className="font-display text-[15vw] font-black leading-[0.85] tracking-tighter text-foreground lg:text-[12vw]">
+               <h1 className="font-display text-[15vw] font-black leading-[0.85] tracking-tighter text-foreground lg:text-[11vw] 2xl:text-[13rem]">
                   UNLIMITED
                </h1>
                <h1
-                  className="font-display text-[15vw] font-black leading-[0.9] tracking-tighter text-transparent drop-shadow-sm lg:text-[12vw]"
+                  className="font-display text-[15vw] font-black leading-[0.9] tracking-tighter text-transparent drop-shadow-sm lg:text-[11vw] 2xl:text-[13rem]"
                   style={{
                      WebkitTextStroke: '2px hsl(var(--foreground) / 0.15)',
                   }}
