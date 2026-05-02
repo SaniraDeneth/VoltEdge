@@ -1,4 +1,7 @@
+'use client';
+
 import ProductCard from './card';
+import { motion, Variants } from 'framer-motion';
 
 const trendingProducts = [
    {
@@ -51,11 +54,41 @@ const trendingProducts = [
    },
 ];
 
+const containerVariants: Variants = {
+   hidden: { opacity: 0 },
+   visible: {
+      opacity: 1,
+      transition: {
+         staggerChildren: 0.1,
+         delayChildren: 0.2,
+      },
+   },
+};
+
+const itemVariants: Variants = {
+   hidden: { opacity: 0, y: 30, filter: 'blur(10px)' },
+   visible: {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      transition: {
+         duration: 0.8,
+         ease: [0.16, 1, 0.3, 1],
+      },
+   },
+};
+
 export default function Trending() {
    return (
-      <section className="w-full bg-background pt-28 pb-12 lg:pt-26 lg:pb-16">
+      <section className="w-full bg-background pt-28 pb-8 lg:pt-26 lg:pb-4 overflow-hidden">
          <div className="container-px mx-auto max-w-7xl">
-            <div className="mb-12 flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
+            <motion.div
+               initial={{ opacity: 0, y: 20 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true, margin: '-100px' }}
+               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+               className="mb-12 flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left"
+            >
                <div className="space-y-2">
                   <h2 className="font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
                      Trending Now
@@ -65,17 +98,25 @@ export default function Trending() {
                   </p>
                </div>
                <div className="flex items-center gap-4">
-                  <button className="rounded-full bg-surface px-6 py-2.5 text-sm font-bold text-foreground border border-border/40 transition-colors hover:bg-muted">
+                  <button className="rounded-full bg-surface px-6 py-2.5 text-sm font-bold text-foreground border border-border/40 transition-colors hover:bg-muted hover:shadow-sm hover-lift">
                      View All
                   </button>
                </div>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:gap-8">
+            <motion.div
+               variants={containerVariants}
+               initial="hidden"
+               whileInView="visible"
+               viewport={{ once: true, margin: '-100px' }}
+               className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:gap-8"
+            >
                {trendingProducts.map((product) => (
-                  <ProductCard key={product.id} {...product} />
+                  <motion.div key={product.id} variants={itemVariants}>
+                     <ProductCard {...product} />
+                  </motion.div>
                ))}
-            </div>
+            </motion.div>
          </div>
       </section>
    );
