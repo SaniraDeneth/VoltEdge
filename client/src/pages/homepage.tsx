@@ -9,7 +9,7 @@ import ValueProps from '@/components/ui/valueProps';
 
 export default function Homepage() {
    return (
-      <main className="flex flex-col">
+      <main className="relative flex flex-col">
          <HeroSection />
          <CategoryGrid />
          <CameraFeature />
