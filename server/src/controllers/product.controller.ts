@@ -1,155 +1,192 @@
-import type { Response, Request, NextFunction } from 'express';
-import { AppError } from '../utils/app.error.js';
-import { HTTP_STATUS } from '../enums/http.status.js';
+import type { Request, Response, NextFunction } from 'express';
 import Product from '../models/product.model.js';
-import { z } from 'zod';
-import productSchema from '../schemas/product.schema.js';
-import { idParamSchema } from '../schemas/common.schema.js';
-import {
-   cleanupUploadedFiles,
-   deleteImagesFromUrls,
-} from '../middlewares/image.middleware.js';
+import { HTTP_STATUS } from '../enums/http.status.js';
 
-type ProductRequest = z.infer<typeof productSchema>;
-type IdParam = z.infer<typeof idParamSchema>;
-
+/**
+ * Get all products with advanced filtering and pagination
+ * @route GET /api/products
+ */
 export const getProducts = async (
    req: Request,
    res: Response,
    _next: NextFunction
 ) => {
-   const { limit, sort } = req.query;
+   const { limit, sort, category, brand, search, minPrice, maxPrice, page, availability, status, newArrivals, specs } = req.query;
 
-   let query = Product.find().populate('categoryId').populate('brandId');
+   const andFilters: any[] = [];
 
+   if (category) {
+      andFilters.push({ categoryId: category });
+   }
+
+   if (brand) {
+      andFilters.push({ brandId: brand });
+   }
+
+   if (search) {
+      andFilters.push({ name: { $regex: search, $options: 'i' } });
+   }
+
+   if (availability) {
+      andFilters.push({ 
+         countInStock: availability === 'in-stock' ? { $gt: 0 } : { $eq: 0 } 
+      });
+   }
+
+   if (status) {
+      andFilters.push({ status });
+   }
+
+   if (newArrivals === 'true') {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      andFilters.push({ createdAt: { $gte: thirtyDaysAgo } });
+   }
+
+   if (specs) {
+      const specPairs = (specs as string).split(',');
+      const groupedSpecs: Record<string, string[]> = {};
+
+      specPairs.forEach(pair => {
+         const [label, value] = pair.split(':');
+         if (label && value) {
+            if (!groupedSpecs[label]) groupedSpecs[label] = [];
+            groupedSpecs[label].push(value);
+         }
+      });
+
+      Object.entries(groupedSpecs).forEach(([label, values]) => {
+         andFilters.push({
+            specifications: {
+               $elemMatch: { 
+                  label, 
+                  value: { $in: values } 
+               }
+            }
+         });
+      });
+   }
+
+   if (minPrice || maxPrice) {
+      const priceFilter: any = {};
+      if (minPrice) priceFilter.$gte = Number(minPrice);
+      if (maxPrice) priceFilter.$lte = Number(maxPrice);
+      andFilters.push({ price: priceFilter });
+   }
+
+   const filter = andFilters.length > 0 ? { $and: andFilters } : {};
+
+   const pageNum = parseInt(page as string) || 1;
+   const limitNum = parseInt(limit as string) || 12;
+   const skip = (pageNum - 1) * limitNum;
+
+   const totalProducts = await Product.countDocuments(filter);
+   const totalPages = Math.ceil(totalProducts / limitNum);
+
+   let sortObj: any = {};
+   
    if (sort) {
-      query = query.sort(sort as string);
+      const sortStr = sort as string;
+      const direction = sortStr.startsWith('-') ? -1 : 1;
+      const field = sortStr.startsWith('-') ? sortStr.substring(1) : sortStr;
+      sortObj[field] = direction;
    } else {
-      query = query.sort('-createdAt');
+      sortObj.createdAt = -1;
    }
 
-   if (limit) {
-      query = query.limit(parseInt(limit as string));
-   }
+   const products = await Product.find(filter)
+      .populate('categoryId')
+      .populate('brandId')
+      .sort({ countInStock: -1, ...sortObj })
+      .skip(skip)
+      .limit(limitNum);
 
-   const products = await query;
-   return res.status(HTTP_STATUS.OK).json(products);
+   return res.status(HTTP_STATUS.OK).json({
+      products,
+      pagination: {
+         totalProducts,
+         totalPages,
+         currentPage: pageNum,
+         limit: limitNum,
+      },
+   });
 };
 
+/**
+ * Get product by ID
+ * @route GET /api/products/:id
+ */
 export const getProduct = async (
    req: Request,
    res: Response,
    _next: NextFunction
 ) => {
-   const { id } = req.params as IdParam;
+   const { id } = req.params;
+   const product = await Product.findById(id).populate('categoryId').populate('brandId');
 
-   const product = await Product.findById(id)
-      .populate('categoryId')
-      .populate('brandId');
    if (!product) {
-      throw new AppError(
-         'Product not found',
-         HTTP_STATUS.NOT_FOUND,
-         'NOT_FOUND'
-      );
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+         message: 'Product not found',
+      });
    }
 
    return res.status(HTTP_STATUS.OK).json(product);
 };
 
+/**
+ * Add a new product
+ * @route POST /api/products
+ */
 export const addProduct = async (
    req: Request,
    res: Response,
    _next: NextFunction
 ) => {
-   const productData = req.body as ProductRequest;
-
-   const existingProduct = await Product.findOne({ name: productData.name });
-   if (existingProduct) {
-      if (req.files) {
-         await cleanupUploadedFiles(req.files as Express.Multer.File[]);
-      }
-      throw new AppError(
-         'Product with this name already exists',
-         HTTP_STATUS.BAD_REQUEST,
-         'ALREADY_EXISTS'
-      );
-   }
-
-   try {
-      const product = await Product.create(productData);
-      return res.status(HTTP_STATUS.CREATED).json(product);
-   } catch (error) {
-      if (req.files) {
-         await cleanupUploadedFiles(req.files as Express.Multer.File[]);
-      }
-      throw error;
-   }
+   const product = await Product.create(req.body);
+   return res.status(HTTP_STATUS.CREATED).json(product);
 };
 
+/**
+ * Update a product
+ * @route PUT /api/products/:id
+ */
 export const editProduct = async (
    req: Request,
    res: Response,
    _next: NextFunction
 ) => {
-   const { id } = req.params as IdParam;
-   const updateData = req.body as ProductRequest;
+   const { id } = req.params;
+   const product = await Product.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+   });
 
-   try {
-      const oldProduct = await Product.findById(id);
-      if (!oldProduct) {
-         if (req.files) {
-            await cleanupUploadedFiles(req.files as Express.Multer.File[]);
-         }
-         throw new AppError(
-            'Product not found',
-            HTTP_STATUS.NOT_FOUND,
-            'NOT_FOUND'
-         );
-      }
-
-      const imagesToDelete = oldProduct.images.filter(
-         (oldUrl) => !updateData.images.includes(oldUrl)
-      );
-
-      const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
-         new: true,
+   if (!product) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+         message: 'Product not found',
       });
-
-      if (imagesToDelete.length > 0) {
-         await deleteImagesFromUrls(imagesToDelete);
-      }
-
-      return res.status(HTTP_STATUS.OK).json(updatedProduct);
-   } catch (error) {
-      if (req.files) {
-         await cleanupUploadedFiles(req.files as Express.Multer.File[]);
-      }
-      throw error;
    }
+
+   return res.status(HTTP_STATUS.OK).json(product);
 };
 
+/**
+ * Delete a product
+ * @route DELETE /api/products/:id
+ */
 export const deleteProduct = async (
    req: Request,
    res: Response,
    _next: NextFunction
 ) => {
-   const { id } = req.params as IdParam;
+   const { id } = req.params;
+   const product = await Product.findByIdAndDelete(id);
 
-   const product = await Product.findById(id);
    if (!product) {
-      throw new AppError(
-         'Product not found',
-         HTTP_STATUS.NOT_FOUND,
-         'NOT_FOUND'
-      );
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+         message: 'Product not found',
+      });
    }
-
-   if (product.images && product.images.length > 0) {
-      await deleteImagesFromUrls(product.images);
-   }
-
-   await Product.findByIdAndDelete(id);
 
    return res.status(HTTP_STATUS.NO_CONTENT).send();
 };
