@@ -20,16 +20,26 @@ export async function apiRequest<T>(
    return response.json();
 }
 
-import type { Product } from '@/types';
+import type { Product, Category, Brand } from '@/types';
 
 export const productsApi = {
    getById: (id: string) => apiRequest<Product>(`/products/${id}`),
-   getAll: (params?: Record<string, string | number>) => {
+   getAll: (params?: Record<string, string | number | boolean>) => {
       const queryString = params
          ? `?${new URLSearchParams(
-              Object.entries(params).map(([k, v]) => [k, String(v)])
+              Object.entries(params)
+                .filter(([_, v]) => v !== undefined && v !== null && v !== '')
+                .map(([k, v]) => [k, String(v)])
            ).toString()}`
          : '';
-      return apiRequest<Product[]>(`/products${queryString}`);
+      return apiRequest<{ products: Product[]; pagination: any }>(`/products${queryString}`);
    },
+};
+
+export const categoriesApi = {
+   getAll: () => apiRequest<Category[]>('/categories'),
+};
+
+export const brandsApi = {
+   getAll: () => apiRequest<Brand[]>('/brands'),
 };
