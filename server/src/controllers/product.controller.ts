@@ -14,13 +14,25 @@ type ProductRequest = z.infer<typeof productSchema>;
 type IdParam = z.infer<typeof idParamSchema>;
 
 export const getProducts = async (
-   _req: Request,
+   req: Request,
    res: Response,
    _next: NextFunction
 ) => {
-   const products = await Product.find()
-      .populate('categoryId')
-      .populate('brandId');
+   const { limit, sort } = req.query;
+
+   let query = Product.find().populate('categoryId').populate('brandId');
+
+   if (sort) {
+      query = query.sort(sort as string);
+   } else {
+      query = query.sort('-createdAt');
+   }
+
+   if (limit) {
+      query = query.limit(parseInt(limit as string));
+   }
+
+   const products = await query;
    return res.status(HTTP_STATUS.OK).json(products);
 };
 
