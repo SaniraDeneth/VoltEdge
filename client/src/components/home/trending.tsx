@@ -1,6 +1,6 @@
 'use client';
 
-import ProductCard from './card';
+import ProductCard from '../ui/card';
 import { motion, Variants } from 'framer-motion';
 
 const trendingProducts = [
