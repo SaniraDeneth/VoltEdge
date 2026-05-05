@@ -44,7 +44,7 @@ export default function Newsletter() {
                      delay: 0.2,
                      ease: [0.16, 1, 0.3, 1],
                   }}
-                  className="font-display text-4xl font-black tracking-tight sm:text-6xl text-gradient-animated bg-linear-to-r from-white via-white/70 to-white"
+                  className="font-display text-4xl font-black tracking-tight sm:text-6xl bg-clip-text text-transparent animate-gradient-x bg-linear-to-r from-white via-white/70 to-white"
                >
                   Join the Edge.
                </motion.h2>

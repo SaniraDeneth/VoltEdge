@@ -117,7 +117,7 @@ export default function HeroSection() {
                         ease: [0.16, 1, 0.3, 1],
                         delay: 0.7,
                      }}
-                     className="font-display text-[15vw] font-black leading-[0.85] tracking-tighter text-gradient-animated bg-linear-to-r from-foreground via-muted-foreground to-foreground lg:text-[11vw] 2xl:text-[13rem]"
+                     className="font-display text-[15vw] font-black leading-[0.85] tracking-tighter bg-clip-text text-transparent animate-gradient-x bg-linear-to-r from-foreground via-muted-foreground to-foreground lg:text-[11vw] 2xl:text-[13rem]"
                   >
                      UNLIMITED
                   </motion.h1>
@@ -131,7 +131,7 @@ export default function HeroSection() {
                      }}
                      className="font-display text-[15vw] font-black leading-[0.9] tracking-tighter text-transparent drop-shadow-lg lg:text-[11vw] 2xl:text-[13rem]"
                      style={{
-                        WebkitTextStroke: '2px hsl(var(--foreground) / 0.15)',
+                        WebkitTextStroke: '1.5px hsl(var(--foreground) / 0.25)',
                      }}
                   >
                      POWER
