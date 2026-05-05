@@ -68,7 +68,7 @@ export default function ProductCard({
                   </div>
 
                   <Link
-                     href={`/product/${id}`}
+                     href={`/products/${id}`}
                      className="group/link flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-all hover:bg-white hover:text-noir"
                   >
                      <ArrowUpRight className="h-4 w-4 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />

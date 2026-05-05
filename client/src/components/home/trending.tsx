@@ -1,58 +1,11 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import ProductCard from '../ui/card';
 import { motion, Variants } from 'framer-motion';
-
-const trendingProducts = [
-   {
-      id: 'iphone-17-pro',
-      name: 'iPhone 17 Pro',
-      price: '$1,099',
-      category: 'Smartphones',
-      image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=800&auto=format&fit=crop',
-      isNew: true,
-   },
-   {
-      id: 'airpods-max',
-      name: 'AirPods Max 2',
-      price: '$549',
-      category: 'Audio',
-      image: 'https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?q=80&w=800&auto=format&fit=crop',
-      isNew: true,
-   },
-   {
-      id: 'watch-ultra',
-      name: 'Watch Ultra 3',
-      price: '$799',
-      category: 'Wearables',
-      image: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?q=80&w=800&auto=format&fit=crop',
-      isNew: false,
-   },
-   {
-      id: 'macbook-pro',
-      name: 'MacBook Pro M4',
-      price: '$1,999',
-      category: 'Computing',
-      image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=800&auto=format&fit=crop',
-      isNew: true,
-   },
-   {
-      id: 'ipad-pro',
-      name: 'iPad Pro Nano',
-      price: '$999',
-      category: 'Tablets',
-      image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?q=80&w=800&auto=format&fit=crop',
-      isNew: false,
-   },
-   {
-      id: 'homepod',
-      name: 'HomePod 3',
-      price: '$299',
-      category: 'Smart Home',
-      image: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=800&auto=format&fit=crop',
-      isNew: false,
-   },
-];
+import { productsApi } from '@/lib/api-client';
+import type { Product } from '@/types';
+import { Loader2 } from 'lucide-react';
 
 const containerVariants: Variants = {
    hidden: { opacity: 0 },
@@ -79,8 +32,26 @@ const itemVariants: Variants = {
 };
 
 export default function Trending() {
+   const [products, setProducts] = useState<Product[]>([]);
+   const [loading, setLoading] = useState(true);
+
+   useEffect(() => {
+      const fetchProducts = async () => {
+         try {
+            const data = await productsApi.getAll({ limit: 8 });
+            setProducts(data);
+         } catch (error) {
+            console.error('Error fetching trending products:', error);
+         } finally {
+            setLoading(false);
+         }
+      };
+
+      fetchProducts();
+   }, []);
+
    return (
-      <section className="w-full bg-background pt-28 pb-8 lg:pt-26 lg:pb-4 overflow-hidden">
+      <section className="w-full bg-background pt-28 pb-10 lg:pt-26 lg:pb-12 overflow-hidden">
          <div className="container-px mx-auto max-w-7xl">
             <motion.div
                initial={{ opacity: 0, y: 20 }}
@@ -104,19 +75,32 @@ export default function Trending() {
                </div>
             </motion.div>
 
-            <motion.div
-               variants={containerVariants}
-               initial="hidden"
-               whileInView="visible"
-               viewport={{ once: true, margin: '-100px' }}
-               className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:gap-8"
-            >
-               {trendingProducts.map((product) => (
-                  <motion.div key={product.id} variants={itemVariants}>
-                     <ProductCard {...product} />
-                  </motion.div>
-               ))}
-            </motion.div>
+            {loading ? (
+               <div className="flex h-64 items-center justify-center">
+                  <Loader2 className="h-10 w-10 animate-spin text-accent" />
+               </div>
+            ) : (
+               <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: '-100px' }}
+                  className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:gap-8"
+               >
+                  {products.map((product) => (
+                     <motion.div key={product.id} variants={itemVariants}>
+                        <ProductCard
+                           id={product.id}
+                           name={product.name}
+                           price={`$${product.price}`}
+                           category={product.category?.name || 'Uncategorized'}
+                           image={product.images?.[0] || ''}
+                           isNew={product.status === 'brandnew'}
+                        />
+                     </motion.div>
+                  ))}
+               </motion.div>
+            )}
          </div>
       </section>
    );

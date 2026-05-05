@@ -24,5 +24,12 @@ import type { Product } from '@/types';
 
 export const productsApi = {
    getById: (id: string) => apiRequest<Product>(`/products/${id}`),
-   getAll: () => apiRequest<Product[]>('/products'),
+   getAll: (params?: Record<string, string | number>) => {
+      const queryString = params
+         ? `?${new URLSearchParams(
+              Object.entries(params).map(([k, v]) => [k, String(v)])
+           ).toString()}`
+         : '';
+      return apiRequest<Product[]>(`/products${queryString}`);
+   },
 };

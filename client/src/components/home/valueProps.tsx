@@ -52,7 +52,7 @@ const itemVariants: Variants = {
 
 export default function ValueProps() {
    return (
-      <section className="relative w-full py-20 overflow-hidden">
+      <section className="relative w-full pb-20 pt-14 overflow-hidden">
          <div className="absolute inset-0 bg-grid opacity-50 z-0 pointer-events-none" />
          <div className="absolute inset-0 bg-linear-to-b from-background via-transparent to-background z-0 pointer-events-none" />
 
