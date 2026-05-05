@@ -2,7 +2,6 @@ import mongoose, { Schema, type HydratedDocument } from 'mongoose';
 
 type Category = {
    name: string;
-   image: string;
 };
 
 export type CategoryDocument = HydratedDocument<Category>;
@@ -13,10 +12,6 @@ const categorySchema = new Schema<Category>(
          type: String,
          required: true,
          trim: true,
-      },
-      image: {
-         type: String,
-         required: true,
       },
    },
    {

@@ -5,11 +5,16 @@ type Product = {
    price: number;
    description: string;
    images: string[];
-   category: mongoose.Types.ObjectId;
-   brand: mongoose.Types.ObjectId;
+   categoryId: mongoose.Types.ObjectId;
+   brandId: mongoose.Types.ObjectId;
    countInStock: number;
    availability: boolean;
    status: 'brandnew' | 'used' | 'refurbished';
+   specifications: { label: string; value: string }[];
+   warranty: {
+      duration: string;
+      policy: string;
+   };
 };
 
 export type ProductDocument = HydratedDocument<Product>;
@@ -36,15 +41,17 @@ const productSchema = new Schema<Product>(
             required: true,
          },
       ],
-      category: {
+      categoryId: {
          type: Schema.Types.ObjectId,
          ref: 'Category',
          required: true,
+         alias: 'category',
       },
-      brand: {
+      brandId: {
          type: Schema.Types.ObjectId,
          ref: 'Brand',
          required: true,
+         alias: 'brand',
       },
 
       countInStock: {
@@ -61,6 +68,16 @@ const productSchema = new Schema<Product>(
          enum: ['brandnew', 'used', 'refurbished'],
          default: 'brandnew',
       },
+      specifications: [
+         {
+            label: { type: String, required: true },
+            value: { type: String, required: true },
+         },
+      ],
+      warranty: {
+         duration: { type: String, required: true },
+         policy: { type: String, default: 'Standard Warranty' },
+      },
    },
    {
       timestamps: true,
@@ -68,8 +85,12 @@ const productSchema = new Schema<Product>(
          virtuals: true,
          versionKey: false,
          transform: (_doc, ret) => {
-            const { _id: _, __v: __, ...rest } = ret;
-            return rest;
+            const { _id: _, __v: __, brandId, categoryId, ...rest } = ret;
+            return {
+               ...rest,
+               brand: brandId,
+               category: categoryId,
+            };
          },
       },
    }

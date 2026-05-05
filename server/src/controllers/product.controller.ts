@@ -19,8 +19,8 @@ export const getProducts = async (
    _next: NextFunction
 ) => {
    const products = await Product.find()
-      .populate('category', 'name')
-      .populate('brand', 'name');
+      .populate('categoryId')
+      .populate('brandId');
    return res.status(HTTP_STATUS.OK).json(products);
 };
 
@@ -32,8 +32,8 @@ export const getProduct = async (
    const { id } = req.params as IdParam;
 
    const product = await Product.findById(id)
-      .populate('category', 'name')
-      .populate('brand', 'name');
+      .populate('categoryId')
+      .populate('brandId');
    if (!product) {
       throw new AppError(
          'Product not found',
