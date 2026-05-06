@@ -11,9 +11,22 @@ export const getProducts = async (
    res: Response,
    _next: NextFunction
 ) => {
-   const { limit, sort, category, brand, search, minPrice, maxPrice, page, availability, status, newArrivals, specs } = req.query;
+   const {
+      limit,
+      sort,
+      category,
+      brand,
+      search,
+      minPrice,
+      maxPrice,
+      page,
+      availability,
+      status,
+      newArrivals,
+      specs,
+   } = req.query;
 
-   const andFilters: any[] = [];
+   const andFilters: Record<string, unknown>[] = [];
 
    if (category) {
       andFilters.push({ categoryId: category });
@@ -28,8 +41,8 @@ export const getProducts = async (
    }
 
    if (availability) {
-      andFilters.push({ 
-         countInStock: availability === 'in-stock' ? { $gt: 0 } : { $eq: 0 } 
+      andFilters.push({
+         countInStock: availability === 'in-stock' ? { $gt: 0 } : { $eq: 0 },
       });
    }
 
@@ -47,7 +60,7 @@ export const getProducts = async (
       const specPairs = (specs as string).split(',');
       const groupedSpecs: Record<string, string[]> = {};
 
-      specPairs.forEach(pair => {
+      specPairs.forEach((pair) => {
          const [label, value] = pair.split(':');
          if (label && value) {
             if (!groupedSpecs[label]) groupedSpecs[label] = [];
@@ -58,17 +71,17 @@ export const getProducts = async (
       Object.entries(groupedSpecs).forEach(([label, values]) => {
          andFilters.push({
             specifications: {
-               $elemMatch: { 
-                  label, 
-                  value: { $in: values } 
-               }
-            }
+               $elemMatch: {
+                  label,
+                  value: { $in: values },
+               },
+            },
          });
       });
    }
 
    if (minPrice || maxPrice) {
-      const priceFilter: any = {};
+      const priceFilter: Record<string, number> = {};
       if (minPrice) priceFilter.$gte = Number(minPrice);
       if (maxPrice) priceFilter.$lte = Number(maxPrice);
       andFilters.push({ price: priceFilter });
@@ -83,8 +96,8 @@ export const getProducts = async (
    const totalProducts = await Product.countDocuments(filter);
    const totalPages = Math.ceil(totalProducts / limitNum);
 
-   let sortObj: any = {};
-   
+   const sortObj: Record<string, 1 | -1> = {};
+
    if (sort) {
       const sortStr = sort as string;
       const direction = sortStr.startsWith('-') ? -1 : 1;
@@ -97,7 +110,7 @@ export const getProducts = async (
    const products = await Product.find(filter)
       .populate('categoryId')
       .populate('brandId')
-      .sort({ countInStock: -1, ...sortObj })
+      .sort({ ...sortObj, countInStock: -1 })
       .skip(skip)
       .limit(limitNum);
 
@@ -122,7 +135,9 @@ export const getProduct = async (
    _next: NextFunction
 ) => {
    const { id } = req.params;
-   const product = await Product.findById(id).populate('categoryId').populate('brandId');
+   const product = await Product.findById(id)
+      .populate('categoryId')
+      .populate('brandId');
 
    if (!product) {
       return res.status(HTTP_STATUS.NOT_FOUND).json({

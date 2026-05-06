@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
+import { categoriesApi } from '@/lib/api-client';
 
 interface CategoryCardProps {
    href: string;
@@ -40,7 +41,19 @@ const CategoryCard = ({
    </Link>
 );
 
-export default function CategoryGrid() {
+export default async function CategoryGrid() {
+   // Fetch categories to get their real IDs for filtering
+   const categories = await categoriesApi.getAll().catch(() => []);
+
+   const getCategoryHref = (name: string) => {
+      const cat = categories.find((c) => c.name.toLowerCase() === name.toLowerCase());
+      if (cat) {
+         return `/products?category=${cat.id}`;
+      }
+      // Fallback to a search if category ID not found, or just the products page
+      return `/products?search=${name}`;
+   };
+
    return (
       <section className="w-full bg-background pt-28 pb-12 lg:pt-26 lg:pb-16">
          <div className="container-px mx-auto max-w-7xl">
@@ -53,32 +66,39 @@ export default function CategoryGrid() {
                      Find the perfect device for your lifestyle.
                   </p>
                </div>
+               <Link
+                  href="/products"
+                  className="group flex items-center gap-2 rounded-full border border-border/50 bg-surface px-6 py-3 text-sm font-bold text-foreground transition-all hover:border-accent hover:text-accent hover:shadow-glow"
+               >
+                  Explore All
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+               </Link>
             </div>
 
             <div className="grid h-auto grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:h-[500px] lg:grid-cols-4 lg:grid-rows-2">
                <CategoryCard
-                  href="/smartphones"
+                  href={getCategoryHref('Smartphones')}
                   title="Smartphones"
                   imageSrc="/cat_smartphone.jpg"
                   className="col-span-1 h-[400px] md:col-span-2 md:row-span-1 lg:col-span-2 lg:row-span-2 lg:h-full"
                />
 
                <CategoryCard
-                  href="/audio"
+                  href={getCategoryHref('Audio')}
                   title="Audio"
                   imageSrc="/cat_audio.jpg"
                   className="col-span-1 h-[250px] md:col-span-1 md:row-span-2 md:h-full lg:col-span-2 lg:row-span-1 lg:h-full"
                />
 
                <CategoryCard
-                  href="/cases"
+                  href={getCategoryHref('Cases')}
                   title="Cases"
                   imageSrc="/cat_case.jpg"
                   className="col-span-1 h-[250px] md:col-span-1 md:row-span-1 lg:col-span-1 lg:row-span-1 lg:h-full"
                />
 
                <CategoryCard
-                  href="/chargers"
+                  href={getCategoryHref('Chargers')}
                   title="Chargers"
                   imageSrc="/cat_charger.jpg"
                   className="col-span-1 h-[250px] md:col-span-1 md:row-span-1 lg:col-span-1 lg:row-span-1 lg:h-full"

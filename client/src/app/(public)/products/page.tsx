@@ -60,13 +60,13 @@ export default function ProductsPage({ searchParams }: { searchParams: Promise<{
    const [isSortOpen, setIsSortOpen] = useState(false);
    const sortRef = useRef<HTMLDivElement>(null);
 
-   // Accordion States - ALL CLOSED BY DEFAULT
+   // Accordion States - Category is open if pre-selected, others closed by default
    const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-      category: false,
-      brand: false,
-      price: false,
-      specs: false,
-      availability: false
+      category: !!currentCategory,
+      brand: !!currentBrand,
+      price: !!(currentMinPrice || currentMaxPrice),
+      specs: !!currentSpecs,
+      availability: !!currentAvailability
    });
 
    const toggleSection = (section: string) => {
@@ -232,7 +232,7 @@ export default function ProductsPage({ searchParams }: { searchParams: Promise<{
                            className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all ${
                               currentNewArrivals 
                                  ? 'border-accent bg-accent text-accent-foreground shadow-glow' 
-                                 : 'border-border/50 text-muted-foreground hover:border-foreground hover:text-foreground'
+                                 : 'border-border/50 bg-white/60 backdrop-blur-md text-muted-foreground hover:border-foreground hover:text-foreground'
                            }`}
                         >
                            <Clock className="h-3 w-3" />
@@ -243,7 +243,7 @@ export default function ProductsPage({ searchParams }: { searchParams: Promise<{
                            className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all ${
                               currentStatus === 'refurbished'
                                  ? 'border-accent bg-accent text-accent-foreground shadow-glow' 
-                                 : 'border-border/50 text-muted-foreground hover:border-foreground hover:text-foreground'
+                                 : 'border-border/50 bg-white/60 backdrop-blur-md text-muted-foreground hover:border-foreground hover:text-foreground'
                            }`}
                         >
                            <Tag className="h-3 w-3" />
@@ -258,7 +258,7 @@ export default function ProductsPage({ searchParams }: { searchParams: Promise<{
                   <input
                      type="text"
                      placeholder="Search products..."
-                     className="w-full rounded-2xl border border-border/50 bg-surface py-3 pl-12 pr-4 text-foreground outline-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/20"
+                     className="w-full rounded-2xl border border-border/50 bg-white/60 backdrop-blur-md py-3 pl-12 pr-4 text-foreground outline-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/20 shadow-sm"
                      value={currentSearch || ''}
                      onChange={(e) => updateFilter('search', e.target.value)}
                   />
@@ -271,7 +271,7 @@ export default function ProductsPage({ searchParams }: { searchParams: Promise<{
                   {/* Reset Filters at the top */}
                   <button 
                      onClick={clearFilters}
-                     className="mb-8 flex w-full items-center justify-center gap-2 rounded-xl border border-border/50 py-3 text-sm font-bold text-foreground/50 transition-all hover:bg-surface hover:text-foreground"
+                     className="mb-8 flex w-full items-center justify-center gap-2 rounded-xl border border-border/50 bg-white/60 backdrop-blur-md py-3 text-sm font-bold text-foreground/50 transition-all duration-300 hover:bg-white/80 hover:text-foreground hover:shadow-sm"
                   >
                      <Filter className="h-4 w-4" />
                      Reset All Filters
@@ -405,7 +405,7 @@ export default function ProductsPage({ searchParams }: { searchParams: Promise<{
                   <div className="mb-8 flex items-center justify-between lg:justify-end">
                      <button
                         onClick={() => setShowMobileFilters(true)}
-                        className="flex items-center gap-2 rounded-xl bg-surface px-4 py-2.5 text-sm font-bold text-foreground border border-border/50 lg:hidden"
+                        className="flex items-center gap-2 rounded-xl border border-border/50 bg-white/60 backdrop-blur-md px-4 py-2.5 text-sm font-bold text-foreground transition-all duration-300 hover:bg-white/80 lg:hidden"
                      >
                         <SlidersHorizontal className="h-4 w-4" />
                         Filters
@@ -414,7 +414,7 @@ export default function ProductsPage({ searchParams }: { searchParams: Promise<{
                      <div className="relative" ref={sortRef}>
                         <button
                            onClick={() => setIsSortOpen(!isSortOpen)}
-                           className="flex w-52 items-center justify-between rounded-xl border border-border/50 bg-surface px-4 py-2.5 text-sm font-bold text-foreground transition-all hover:border-accent"
+                           className="flex w-52 items-center justify-between rounded-xl border border-border/50 bg-white/60 backdrop-blur-md px-4 py-2.5 text-sm font-bold text-foreground transition-all duration-300 hover:border-accent hover:bg-white/80 hover:shadow-sm"
                         >
                            <span className="truncate">
                               {SORT_OPTIONS.find(opt => opt.value === currentSort)?.label}
@@ -425,10 +425,10 @@ export default function ProductsPage({ searchParams }: { searchParams: Promise<{
                         <AnimatePresence>
                            {isSortOpen && (
                               <motion.div
-                                 initial={{ opacity: 0, y: 10 }}
-                                 animate={{ opacity: 1, y: 0 }}
-                                 exit={{ opacity: 0, y: 10 }}
-                                 className="absolute right-0 z-40 mt-2 w-52 overflow-hidden rounded-2xl border border-border/50 bg-surface p-1 shadow-2xl backdrop-blur-xl"
+                                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                 animate={{ opacity: 1, y: 0, scale: 1 }}
+                                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                 className="absolute right-0 z-40 mt-2 w-52 overflow-hidden rounded-2xl border border-white/40 bg-white/80 p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-2xl"
                               >
                                  {SORT_OPTIONS.map((option) => (
                                     <button
@@ -437,12 +437,21 @@ export default function ProductsPage({ searchParams }: { searchParams: Promise<{
                                           updateFilter('sort', option.value);
                                           setIsSortOpen(false);
                                        }}
-                                       className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm font-bold transition-all ${
-                                          currentSort === option.value ? 'bg-accent text-accent-foreground' : 'text-foreground/70 hover:bg-white/5 hover:text-foreground'
+                                       className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm font-bold transition-all duration-200 ${
+                                          currentSort === option.value 
+                                             ? 'bg-accent text-white shadow-lg shadow-accent/20' 
+                                             : 'text-slate-600 hover:bg-slate-100/50 hover:text-slate-900'
                                        }`}
                                     >
                                        {option.label}
-                                       {currentSort === option.value && <Check className="h-4 w-4" />}
+                                       {currentSort === option.value && (
+                                          <motion.div
+                                             layoutId="activeSort"
+                                             className="rounded-full bg-white/20 p-0.5"
+                                          >
+                                             <Check className="h-3.5 w-3.5" />
+                                          </motion.div>
+                                       )}
                                     </button>
                                  ))}
                               </motion.div>
@@ -544,7 +553,7 @@ export default function ProductsPage({ searchParams }: { searchParams: Promise<{
                      animate={{ x: 0 }}
                      exit={{ x: '100%' }}
                      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                     className="fixed inset-y-0 right-0 z-50 w-full max-w-xs bg-background p-8 shadow-2xl overflow-y-auto"
+                     className="fixed inset-y-0 right-0 z-50 w-full max-w-xs bg-white/90 p-8 shadow-2xl overflow-y-auto backdrop-blur-2xl"
                   >
                      <div className="mb-10 flex items-center justify-between">
                         <h2 className="font-display text-3xl font-bold">Filters</h2>
