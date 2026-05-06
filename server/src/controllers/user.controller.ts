@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
+import { OAuth2Client } from 'google-auth-library';
 import User from '../models/user.model.js';
 import { HTTP_STATUS } from '../enums/http.status.js';
 import { AppError } from '../utils/app.error.js';
@@ -11,13 +12,16 @@ import {
    verifyRefreshToken,
 } from '../utils/jwt.js';
 import type { ProtectedRequest } from '../middlewares/auth.middleware.js';
+import { ENV } from '../config/env.js';
+
+const googleClient = new OAuth2Client(ENV.GOOGLE_CLIENT_ID);
 
 type RegisterInput = z.infer<typeof userSchema>;
 type LoginInput = Pick<RegisterInput, 'email' | 'password'>;
 
 const COOKIE_OPTIONS = {
    httpOnly: true,
-   secure: process.env.NODE_ENV === 'production',
+   secure: ENV.NODE_ENV === 'production',
    sameSite: 'lax' as const,
    maxAge: 30 * 24 * 60 * 60 * 1000,
 };
@@ -44,6 +48,7 @@ export const register = async (
       name,
       email,
       password: hashedPassword,
+      authProvider: 'local',
    });
 
    const payload = { email: user.email, name: user.name, role: user.role };
@@ -75,6 +80,14 @@ export const login = async (
       );
    }
 
+   if (user.authProvider === 'google' || !user.password) {
+      throw new AppError(
+         'This account is linked with Google. Please use Google Login.',
+         HTTP_STATUS.BAD_REQUEST,
+         'USE_GOOGLE_AUTH'
+      );
+   }
+
    const isPasswordValid = await bcrypt.compare(password, user.password);
    if (!isPasswordValid) {
       throw new AppError(
@@ -98,6 +111,86 @@ export const login = async (
       user: user.toJSON(),
       token: accessToken,
    });
+};
+
+export const googleLogin = async (
+   req: Request,
+   res: Response,
+   _next: NextFunction
+) => {
+   const { credential } = req.body;
+
+   if (!credential) {
+      throw new AppError(
+         'Google credential is required',
+         HTTP_STATUS.BAD_REQUEST,
+         'BAD_REQUEST'
+      );
+   }
+
+   try {
+      const ticket = await googleClient.verifyIdToken({
+         idToken: credential,
+         audience: ENV.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+      if (!payload || !payload.email) {
+         throw new AppError(
+            'Invalid Google token',
+            HTTP_STATUS.UNAUTHORIZED,
+            'UNAUTHORIZED'
+         );
+      }
+
+      const { email, name, picture, sub: googleId } = payload;
+
+      let user = await User.findOne({ googleId });
+
+      if (!user) {
+         user = await User.findOne({ email });
+
+         if (user) {
+            user.googleId = googleId;
+            if (!user.avatar && picture) {
+               user.avatar = picture;
+            }
+            await user.save();
+         } else {
+            user = await User.create({
+               name: name || 'User',
+               email,
+               googleId,
+               ...(picture ? { avatar: picture } : {}),
+               authProvider: 'google',
+               role: 'user',
+            });
+         }
+      }
+
+      const authPayload = {
+         email: user.email,
+         name: user.name,
+         role: user.role,
+      };
+
+      const accessToken = generateAccessToken(authPayload);
+      const refreshToken = generateRefreshToken(authPayload);
+
+      res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
+
+      return res.status(HTTP_STATUS.OK).json({
+         user: user.toJSON(),
+         token: accessToken,
+      });
+   } catch (error) {
+      console.error('Google Auth Error:', error);
+      throw new AppError(
+         'Google authentication failed',
+         HTTP_STATUS.UNAUTHORIZED,
+         'UNAUTHORIZED'
+      );
+   }
 };
 
 export const refresh = async (

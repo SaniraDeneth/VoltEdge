@@ -3,8 +3,11 @@ import mongoose, { Schema, type HydratedDocument } from 'mongoose';
 type User = {
    name: string;
    email: string;
-   password: string;
+   password?: string;
    role: 'admin' | 'user';
+   googleId?: string;
+   avatar?: string;
+   authProvider: 'local' | 'google';
 };
 
 export type UserDocument = HydratedDocument<User>;
@@ -24,13 +27,28 @@ const userSchema = new Schema<User>(
       },
       password: {
          type: String,
-         required: true,
+         required: function (this: User) {
+            return this.authProvider === 'local';
+         },
       },
       role: {
          type: String,
          required: true,
          enum: ['admin', 'user'],
          default: 'user',
+      },
+      googleId: {
+         type: String,
+         unique: true,
+         sparse: true,
+      },
+      avatar: {
+         type: String,
+      },
+      authProvider: {
+         type: String,
+         enum: ['local', 'google'],
+         default: 'local',
       },
    },
    {

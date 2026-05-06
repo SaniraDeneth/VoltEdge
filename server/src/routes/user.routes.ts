@@ -5,6 +5,7 @@ import {
    register,
    refresh,
    logout,
+   googleLogin,
 } from '../controllers/user.controller.js';
 import { asyncHandler } from '../utils/async.handler.js';
 import { validate } from '../middlewares/validate.middleware.js';
@@ -21,6 +22,9 @@ userRoutes.post(
 );
 userRoutes.post('/refresh', asyncHandler(refresh));
 userRoutes.post('/logout', asyncHandler(logout));
+
+// Google Login (New Decoupled Flow)
+userRoutes.post('/social-auth', asyncHandler(googleLogin));
 
 userRoutes.use(protect);
 userRoutes.get('/me', asyncHandler(getMe));
