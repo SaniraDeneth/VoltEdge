@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { verifyJwtToken } from '../utils/jwt.js';
+import { verifyAccessToken } from '../utils/jwt.js';
 import { AppError } from '../utils/app.error.js';
 import { HTTP_STATUS } from '../enums/http.status.js';
 import User from '../models/user.model.js';
@@ -42,7 +42,7 @@ export const protect = async (
          );
       }
 
-      const decoded = verifyJwtToken(token) as {
+      const decoded = verifyAccessToken(token) as {
          email: string;
          role: 'admin' | 'user';
          name: string;

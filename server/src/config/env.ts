@@ -3,6 +3,7 @@ dotenv.config();
 
 const requiredEnvVars = [
    'JWT_SECRET',
+   'JWT_REFRESH_SECRET',
    'PORT',
    'MONGODB_URI',
    'NODE_ENV',
@@ -19,6 +20,7 @@ for (const envVar of requiredEnvVars) {
 
 export const ENV = {
    JWT_SECRET: process.env.JWT_SECRET!,
+   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET!,
    NODE_ENV: process.env.NODE_ENV!,
    PORT: process.env.PORT!,
    MONGODB_URI: process.env.MONGODB_URI!,

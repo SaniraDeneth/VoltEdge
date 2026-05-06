@@ -7,18 +7,24 @@ import { globalExceptionHandler } from './middlewares/error.middleware.js';
 import productRoutes from './routes/product.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import orderRoutes from './routes/order.routes.js';
+import cookieParser from 'cookie-parser';
 import { ENV } from './config/env.js';
 
 connectDB();
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use((req, res, next) => {
-   res.header('Access-Control-Allow-Origin', '*');
+   res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+   res.header('Access-Control-Allow-Credentials', 'true');
    res.header(
       'Access-Control-Allow-Methods',
       'GET, POST, PUT, DELETE, OPTIONS'
    );
-   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+   res.header(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, Cookie'
+   );
 
    if (req.method === 'OPTIONS') {
       res.sendStatus(200);

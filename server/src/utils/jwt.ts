@@ -7,12 +7,22 @@ type JwtPayload = {
    role: 'admin' | 'user';
 };
 
-export const generateJwtToken = (payload: JwtPayload) => {
+export const generateAccessToken = (payload: JwtPayload) => {
    return jwt.sign(payload, ENV.JWT_SECRET, {
-      expiresIn: '7d',
+      expiresIn: '15m',
    });
 };
 
-export const verifyJwtToken = (token: string) => {
-   return jwt.verify(token, ENV.JWT_SECRET);
+export const generateRefreshToken = (payload: JwtPayload) => {
+   return jwt.sign(payload, ENV.JWT_REFRESH_SECRET, {
+      expiresIn: '30d',
+   });
+};
+
+export const verifyAccessToken = (token: string) => {
+   return jwt.verify(token, ENV.JWT_SECRET) as JwtPayload;
+};
+
+export const verifyRefreshToken = (token: string) => {
+   return jwt.verify(token, ENV.JWT_REFRESH_SECRET) as JwtPayload;
 };

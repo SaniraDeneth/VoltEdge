@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { getMe, login, register } from '../controllers/user.controller.js';
+import {
+   getMe,
+   login,
+   register,
+   refresh,
+   logout,
+} from '../controllers/user.controller.js';
 import { asyncHandler } from '../utils/async.handler.js';
 import { validate } from '../middlewares/validate.middleware.js';
 import { userSchema } from '../schemas/user.schema.js';
@@ -13,6 +19,9 @@ userRoutes.post(
    validate(userSchema.pick({ email: true, password: true })),
    asyncHandler(login)
 );
+userRoutes.post('/refresh', asyncHandler(refresh));
+userRoutes.post('/logout', asyncHandler(logout));
+
 userRoutes.use(protect);
 userRoutes.get('/me', asyncHandler(getMe));
 
