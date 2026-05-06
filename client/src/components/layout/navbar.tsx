@@ -18,11 +18,12 @@ import type { Product } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Navbar() {
    const [isScrolled, setIsScrolled] = useState(false);
    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-   const [isLoggedIn] = useState(true);
+   const { user, isAuthenticated, logout } = useAuth();
    const [searchQuery, setSearchQuery] = useState('');
    const [recommendations, setRecommendations] = useState<Product[]>([]);
    const [isSearching, setIsSearching] = useState(false);
@@ -265,29 +266,53 @@ export default function Navbar() {
                   </Link>
 
                   <div className="hidden sm:block">
-                     {isLoggedIn ? (
-                        <button
-                           className={`relative overflow-hidden rounded-full border-2 border-transparent transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-glow ${
-                              isScrolled ? 'h-8 w-8' : 'h-10 w-10'
-                           }`}
-                        >
-                           <Image
-                              src="https://ui-avatars.com/api/?name=User&background=220%2014%25%208%25&color=fff"
-                              alt="Profile"
-                              fill
-                              unoptimized
-                              className="h-full w-full object-cover"
-                              sizes="(max-width: 768px) 32px, 40px"
-                           />
-                        </button>
-                     ) : (
-                        <Link
-                           href="/login"
-                           className="hover-lift rounded-full bg-foreground px-5 py-2 text-sm font-semibold text-background shadow-sm transition-all hover:bg-noir"
-                        >
-                           Sign In
-                        </Link>
-                     )}
+                     <div className="hidden sm:flex items-center gap-4">
+                        {isAuthenticated ? (
+                           <div className="relative group">
+                              <button
+                                 className={`relative overflow-hidden rounded-full border-2 border-transparent transition-all duration-500 hover:border-accent hover:shadow-glow ${
+                                    isScrolled ? 'h-8 w-8' : 'h-10 w-10'
+                                 }`}
+                              >
+                                 <Image
+                                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=220%2014%25%208%25&color=fff`}
+                                    alt="Profile"
+                                    fill
+                                    unoptimized
+                                    className="h-full w-full object-cover"
+                                    sizes="(max-width: 768px) 32px, 40px"
+                                 />
+                              </button>
+
+                              {/* Profile Dropdown */}
+                              <div className="absolute right-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100">
+                                 <div className="w-48 overflow-hidden rounded-2xl border border-white/10 bg-noir/90 backdrop-blur-xl p-2 shadow-2xl">
+                                    <div className="px-3 py-2 border-b border-white/5 mb-1">
+                                       <p className="text-xs font-bold text-white truncate">
+                                          {user?.name}
+                                       </p>
+                                       <p className="text-[10px] text-white/40 truncate">
+                                          {user?.email}
+                                       </p>
+                                    </div>
+                                    <button
+                                       onClick={() => logout()}
+                                       className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs font-bold text-white/60 transition-colors hover:bg-accent/10 hover:text-accent"
+                                    >
+                                       Logout
+                                    </button>
+                                 </div>
+                              </div>
+                           </div>
+                        ) : (
+                           <Link
+                              href="/login"
+                              className="hover-lift rounded-full bg-foreground px-5 py-2 text-sm font-semibold text-background shadow-sm transition-all hover:bg-noir"
+                           >
+                              Sign In
+                           </Link>
+                        )}
+                     </div>
                   </div>
 
                   <button
@@ -408,6 +433,51 @@ export default function Navbar() {
                               />
                            </Link>
                         ))}
+                     </div>
+
+                     <div className="pt-4 mt-4 border-t border-border/50">
+                        {isAuthenticated ? (
+                           <div className="space-y-3">
+                              <div className="flex items-center gap-4 px-5 py-2">
+                                 <div className="relative h-12 w-12 overflow-hidden rounded-full border-2 border-accent/20">
+                                    <Image
+                                       src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=220%2014%25%208%25&color=fff`}
+                                       alt="Profile"
+                                       fill
+                                       unoptimized
+                                       className="object-cover"
+                                    />
+                                 </div>
+                                 <div className="flex-1 overflow-hidden">
+                                    <p className="truncate text-base font-bold text-foreground">
+                                       {user?.name}
+                                    </p>
+                                    <p className="truncate text-xs text-muted-foreground">
+                                       {user?.email}
+                                    </p>
+                                 </div>
+                              </div>
+                              <button
+                                 onClick={() => {
+                                    logout();
+                                    setIsMobileMenuOpen(false);
+                                 }}
+                                 className="flex w-full items-center justify-between rounded-xl bg-accent/5 px-5 py-3.5 text-lg font-bold text-accent transition-all active:scale-95"
+                              >
+                                 Logout
+                                 <ArrowRight className="h-4 w-4" />
+                              </button>
+                           </div>
+                        ) : (
+                           <Link
+                              href="/login"
+                              className="flex w-full items-center justify-between rounded-xl bg-foreground px-5 py-3.5 text-lg font-bold text-background transition-all active:scale-95"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                           >
+                              Sign In
+                              <ArrowRight className="h-4 w-4" />
+                           </Link>
+                        )}
                      </div>
                   </div>
                </div>

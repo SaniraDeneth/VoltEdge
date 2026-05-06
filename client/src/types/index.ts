@@ -39,3 +39,16 @@ export interface Pagination {
    currentPage: number;
    limit: number;
 }
+
+export interface User {
+   id: string;
+   name: string;
+   email: string;
+   role: 'user' | 'admin';
+   createdAt: string;
+}
+
+export interface AuthResponse {
+   user: User;
+   token: string;
+}
