@@ -34,8 +34,10 @@ export default function RegisterPage() {
    const [email, setEmail] = useState('');
    const [password, setPassword] = useState('');
    const [showPassword, setShowPassword] = useState(false);
+   const [isPrompting, setIsPrompting] = useState(false);
 
    const handleGoogleClick = () => {
+      if (isLoading || isPrompting) return;
       const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
       if (!clientId) {
@@ -43,21 +45,32 @@ export default function RegisterPage() {
          return;
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (typeof window !== 'undefined' && (window as any).google) {
+      setIsPrompting(true);
+
+      if (
+         typeof window !== 'undefined' &&
          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-         (window as any).google.accounts.id.initialize({
+         (window as any).google
+      ) {
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         const google = (window as any).google;
+         google.accounts.id.initialize({
             client_id: clientId,
-            callback: (response: { credential?: string }) => {
+            callback: async (response: { credential?: string }) => {
                if (response.credential) {
-                  googleLogin(response.credential);
+                  try {
+                     await googleLogin(response.credential);
+                  } finally {
+                     setIsPrompting(false);
+                  }
+               } else {
+                  setIsPrompting(false);
                }
             },
             cancel_on_tap_outside: false,
          });
 
-         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-         (window as any).google.accounts.id.prompt(
+         google.accounts.id.prompt(
             (notification: {
                isNotDisplayed: () => boolean;
                isSkippedMoment: () => boolean;
@@ -66,6 +79,7 @@ export default function RegisterPage() {
                   notification.isNotDisplayed() ||
                   notification.isSkippedMoment()
                ) {
+                  setIsPrompting(false);
                   toast.error(
                      'Google signup overlay was blocked. Please enable cookies or try again later.'
                   );
@@ -73,6 +87,7 @@ export default function RegisterPage() {
             }
          );
       } else {
+         setIsPrompting(false);
          toast.error(
             'Google identity is initializing, please try again in a moment.'
          );
@@ -211,11 +226,14 @@ export default function RegisterPage() {
             <div className="mt-6">
                <button
                   type="button"
+                  disabled={isLoading || isPrompting}
                   onClick={handleGoogleClick}
-                  className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-bold text-slate-700 transition-all hover:bg-slate-50 hover:border-slate-300"
+                  className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-bold text-slate-700 transition-all hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
                >
                   <GoogleIcon />
-                  Continue with Google
+                  {isLoading || isPrompting
+                     ? 'Processing...'
+                     : 'Continue with Google'}
                </button>
             </div>
          </div>
