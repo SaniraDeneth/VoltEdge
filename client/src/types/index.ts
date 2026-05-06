@@ -4,14 +4,8 @@ export interface Product {
    price: number;
    description: string;
    images: string[];
-   category?: {
-      id: string;
-      name: string;
-   };
-   brand?: {
-      id: string;
-      name: string;
-   };
+   category?: Category;
+   brand?: Brand;
    countInStock: number;
    status: string;
    specifications: Array<{
@@ -33,4 +27,15 @@ export interface Brand {
    id: string;
    name: string;
    image: string;
+}
+
+export interface CartItem extends Product {
+   quantity: number;
+}
+
+export interface Pagination {
+   totalPages: number;
+   totalProducts: number;
+   currentPage: number;
+   limit: number;
 }

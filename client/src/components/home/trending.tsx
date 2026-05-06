@@ -39,7 +39,7 @@ export default function Trending() {
       const fetchProducts = async () => {
          try {
             const data = await productsApi.getAll({ limit: 8 });
-            setProducts(data);
+            setProducts(data.products);
          } catch (error) {
             console.error('Error fetching trending products:', error);
          } finally {

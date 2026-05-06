@@ -15,6 +15,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { productsApi } from '@/lib/api-client';
 import type { Product } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-hot-toast';
+import { useCart } from '@/context/CartContext';
 
 export default function Navbar() {
    const [isScrolled, setIsScrolled] = useState(false);
@@ -27,6 +29,7 @@ export default function Navbar() {
    const searchRef = useRef<HTMLDivElement>(null);
    const router = useRouter();
    const pathname = usePathname();
+   const { cartCount } = useCart();
 
    const navLinks = [
       { name: 'Home', href: '/' },
@@ -108,6 +111,8 @@ export default function Navbar() {
          );
          setShowSuggestions(false);
          setIsMobileMenuOpen(false);
+      } else {
+         toast.error('Please enter a search term');
       }
    };
 
@@ -249,9 +254,11 @@ export default function Navbar() {
                      className="relative p-2 text-muted-foreground transition-transform hover:scale-110 hover:text-foreground"
                   >
                      <ShoppingBag className="h-5 w-5" />
-                     <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground shadow-sm">
-                        3
-                     </span>
+                     {cartCount > 0 && (
+                        <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground shadow-sm">
+                           {cartCount}
+                        </span>
+                     )}
                   </Link>
 
                   <div className="hidden sm:block">
@@ -337,18 +344,28 @@ export default function Navbar() {
                                        <button
                                           key={product.id}
                                           onClick={() => {
-                                             router.push(`/products/${product.id}`);
+                                             router.push(
+                                                `/products/${product.id}`
+                                             );
                                              setIsMobileMenuOpen(false);
                                              setSearchQuery('');
                                           }}
                                           className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-all hover:bg-white/50"
                                        >
                                           <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-border/30 bg-white">
-                                             <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
+                                             <img
+                                                src={product.images[0]}
+                                                alt={product.name}
+                                                className="h-full w-full object-cover"
+                                             />
                                           </div>
                                           <div className="flex-1 overflow-hidden">
-                                             <p className="truncate text-sm font-bold text-foreground">{product.name}</p>
-                                             <p className="text-xs font-medium text-muted-foreground">${product.price}</p>
+                                             <p className="truncate text-sm font-bold text-foreground">
+                                                {product.name}
+                                             </p>
+                                             <p className="text-xs font-medium text-muted-foreground">
+                                                ${product.price}
+                                             </p>
                                           </div>
                                           <ArrowRight className="h-4 w-4 text-accent" />
                                        </button>
@@ -356,13 +373,15 @@ export default function Navbar() {
                                  </div>
                               ) : (
                                  <div className="py-6 text-center">
-                                    <p className="text-xs font-medium text-muted-foreground">No products found</p>
+                                    <p className="text-xs font-medium text-muted-foreground">
+                                       No products found
+                                    </p>
                                  </div>
                               )}
                            </motion.div>
                         )}
                      </AnimatePresence>
-                     
+
                      <div className="space-y-1">
                         {navLinks.map((link) => (
                            <Link

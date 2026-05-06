@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { Toaster } from 'react-hot-toast';
+import { CartProvider } from '@/context/CartContext';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -14,7 +16,32 @@ export default function RootLayout({
 }>) {
    return (
       <html lang="en">
-         <body className="min-h-full flex flex-col">{children}</body>
+         <body className="min-h-full flex flex-col">
+            <CartProvider>
+               <Toaster
+                  position="bottom-right"
+                  toastOptions={{
+                     style: {
+                        background: '#fff',
+                        color: '#1a1a1a',
+                        padding: '16px 24px',
+                        borderRadius: '12px',
+                        boxShadow: '0 20px 40px rgba(0,0,0,0.08)',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        border: '1px solid rgba(0,0,0,0.05)',
+                     },
+                     success: {
+                        iconTheme: {
+                           primary: '#3b82f6', // Use a clean brand blue
+                           secondary: '#fff',
+                        },
+                     },
+                  }}
+               />
+               {children}
+            </CartProvider>
+         </body>
       </html>
    );
 }

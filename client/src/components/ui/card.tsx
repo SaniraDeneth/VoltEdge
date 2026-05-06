@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Plus, ArrowUpRight, ShoppingCart } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Plus, ArrowUpRight } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
+import { Product } from '@/types';
 
 interface ProductCardProps {
    id: string;
@@ -22,10 +23,29 @@ export default function ProductCard({
    isNew,
    countInStock = 0,
 }: ProductCardProps) {
+   const { addToCart } = useCart();
+
    const handleAddToCart = (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      // Add to cart logic will go here
+
+      // Construct a partial product object for the cart
+      // We parse the price string (e.g. "$1,299") to a number
+      const numericPrice = Number(price.replace(/[^0-9.-]+/g, ''));
+
+      addToCart({
+         id,
+         name,
+         price: numericPrice,
+         images: [image],
+         countInStock,
+         category: { id: '', name: category }, // Dummy ID since we don't have it here
+         description: '',
+         specifications: [],
+         status: isNew ? 'new' : '',
+         warranty: { duration: '', policy: '' },
+      } as Product);
+
       console.log('Added to cart:', name);
    };
 
@@ -41,10 +61,10 @@ export default function ProductCard({
                   className="object-cover transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                />
-               
+
                {/* Dark Overlay Gradient */}
                <div className="absolute inset-0 bg-gradient-to-t from-noir via-noir/20 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
-               
+
                {/* Top Bar: Badges & Quick Add */}
                <div className="absolute inset-x-4 top-4 flex items-start justify-between z-10">
                   <div className="flex flex-col gap-1.5">
@@ -64,7 +84,7 @@ export default function ProductCard({
 
                   {/* Quick Add Button */}
                   {countInStock > 0 && (
-                     <button 
+                     <button
                         onClick={handleAddToCart}
                         className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-noir shadow-2xl transition-all duration-500 hover:scale-110 active:scale-95 lg:opacity-0 lg:translate-y-2 lg:group-hover:opacity-100 lg:group-hover:translate-y-0"
                      >
@@ -75,14 +95,20 @@ export default function ProductCard({
 
                {/* Availability Indicator (Floating Center or Top) */}
                <div className="absolute right-4 top-16 z-10">
-                  <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 backdrop-blur-md border border-white/5 ${
-                     countInStock > 0 
-                        ? 'bg-emerald-500/10 text-emerald-400' 
-                        : 'bg-rose-500/10 text-rose-400'
-                  }`}>
-                     <div className={`h-1.5 w-1.5 rounded-full ${
-                        countInStock > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'
-                     }`} />
+                  <div
+                     className={`flex items-center gap-1.5 rounded-full px-3 py-1 backdrop-blur-md border border-white/5 ${
+                        countInStock > 0
+                           ? 'bg-emerald-500/10 text-emerald-400'
+                           : 'bg-rose-500/10 text-rose-400'
+                     }`}
+                  >
+                     <div
+                        className={`h-1.5 w-1.5 rounded-full ${
+                           countInStock > 0
+                              ? 'bg-emerald-400 animate-pulse'
+                              : 'bg-rose-400'
+                        }`}
+                     />
                      <span className="text-[8px] font-black uppercase tracking-widest">
                         {countInStock > 0 ? 'In Stock' : 'Out of Stock'}
                      </span>

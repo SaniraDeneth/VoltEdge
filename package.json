@@ -10,7 +10,8 @@
       "prepare": "husky"
    },
    "dependencies": {
-      "prettier": "^3.8.1"
+      "prettier": "^3.8.1",
+      "react-hot-toast": "^2.6.0"
    },
    "devDependencies": {
       "@eslint/js": "^10.0.1",
