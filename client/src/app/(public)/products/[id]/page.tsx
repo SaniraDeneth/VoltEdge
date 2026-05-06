@@ -6,6 +6,8 @@ import { useParams } from 'next/navigation';
 import { ShoppingBag, ShieldCheck, Truck, Star, Loader2 } from 'lucide-react';
 import { productsApi } from '@/lib/api-client';
 import type { Product } from '@/types';
+import { useCart } from '@/context/CartContext';
+import { toast } from 'react-hot-toast';
 
 export default function ProductPage() {
    const params = useParams();
@@ -17,6 +19,8 @@ export default function ProductPage() {
    const [activeImg, setActiveImg] = useState<string>('');
    const [quantity, setQuantity] = useState(1);
 
+   const { addToCart } = useCart();
+
    useEffect(() => {
       const fetchProduct = async () => {
          try {
@@ -26,6 +30,9 @@ export default function ProductPage() {
             setProduct(data);
             if (data.images?.length > 0) {
                setActiveImg(data.images[0]);
+            }
+            if (data.countInStock === 0) {
+               setQuantity(0);
             }
          } catch (err: unknown) {
             setError(
@@ -38,6 +45,17 @@ export default function ProductPage() {
 
       if (id) fetchProduct();
    }, [id]);
+
+   const handleAddToCart = () => {
+      if (!product) return;
+
+      if (product.countInStock === 0) {
+         toast.error('This item is currently out of stock');
+         return;
+      }
+
+      addToCart(product, quantity);
+   };
 
    if (loading) {
       return (
@@ -161,12 +179,17 @@ export default function ProductPage() {
 
                      {/* Action Row */}
                      <div className="flex items-center gap-4">
-                        <div className="flex items-center rounded-full border border-border/60 bg-surface px-4 py-2">
+                        <div
+                           className={`flex items-center rounded-full border border-border/60 bg-surface px-4 py-2 ${product.countInStock === 0 ? 'opacity-40 pointer-events-none' : ''}`}
+                        >
                            <button
                               onClick={() =>
                                  setQuantity(Math.max(1, quantity - 1))
                               }
-                              className="px-3 py-1 font-bold"
+                              disabled={
+                                 product.countInStock === 0 || quantity <= 1
+                              }
+                              className="px-3 py-1 font-bold disabled:opacity-30"
                            >
                               -
                            </button>
@@ -179,14 +202,24 @@ export default function ProductPage() {
                                     Math.min(product.countInStock, quantity + 1)
                                  )
                               }
-                              className="px-3 py-1 font-bold"
+                              disabled={
+                                 product.countInStock === 0 ||
+                                 quantity >= product.countInStock
+                              }
+                              className="px-3 py-1 font-bold disabled:opacity-30"
                            >
                               +
                            </button>
                         </div>
-                        <button className="group relative flex flex-1 items-center justify-center gap-3 overflow-hidden rounded-full bg-foreground py-4 font-bold text-background transition-all hover:bg-noir hover:shadow-xl">
+                        <button
+                           onClick={handleAddToCart}
+                           disabled={product.countInStock === 0}
+                           className="group relative flex flex-1 items-center justify-center gap-3 overflow-hidden rounded-full bg-foreground py-4 font-bold text-background transition-all hover:bg-noir hover:shadow-xl disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:hover:shadow-none"
+                        >
                            <ShoppingBag className="h-5 w-5 transition-transform group-hover:-translate-y-1" />
-                           Add to Cart
+                           {product.countInStock > 0
+                              ? 'Add to Cart'
+                              : 'Out of Stock'}
                            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
                         </button>
                      </div>

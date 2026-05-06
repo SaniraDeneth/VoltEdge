@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast';
 
 interface CartContextType {
    cart: CartItem[];
-   addToCart: (product: Product) => void;
+   addToCart: (product: Product, quantity?: number) => void;
    removeFromCart: (productId: string) => void;
    updateQuantity: (productId: string, quantity: number) => void;
    clearCart: () => void;
@@ -40,11 +40,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
    }, [cart, isInitialized]);
 
-   const addToCart = (product: Product) => {
+   const addToCart = (product: Product, quantity: number = 1) => {
       const existingItem = cart.find((item) => item.id === product.id);
 
       if (existingItem) {
-         if (existingItem.quantity >= product.countInStock) {
+         const newQuantity = existingItem.quantity + quantity;
+         if (newQuantity > product.countInStock) {
             toast.error(
                `Only ${product.countInStock} items available in stock`,
                {
@@ -56,17 +57,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
          setCart((prevCart) =>
             prevCart.map((item) =>
                item.id === product.id
-                  ? { ...item, quantity: item.quantity + 1 }
+                  ? { ...item, quantity: newQuantity }
                   : item
             )
          );
          toast.success(`Updated ${product.name} quantity in cart!`);
       } else {
-         if (product.countInStock < 1) {
-            toast.error('This product is currently out of stock');
+         if (product.countInStock < quantity) {
+            toast.error(
+               `Only ${product.countInStock} items available in stock`
+            );
             return;
          }
-         setCart((prevCart) => [...prevCart, { ...product, quantity: 1 }]);
+         setCart((prevCart) => [...prevCart, { ...product, quantity }]);
          toast.success(`Added ${product.name} to cart!`);
       }
    };
