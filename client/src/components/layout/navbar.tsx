@@ -12,6 +12,7 @@ import {
    Loader2,
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { productsApi } from '@/lib/api-client';
 import type { Product } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -219,10 +220,12 @@ export default function Navbar() {
                                           className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-all hover:bg-accent/5 group/item"
                                        >
                                           <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-border/50 bg-white">
-                                             <img
+                                             <Image
                                                 src={product.images[0]}
                                                 alt={product.name}
-                                                className="h-full w-full object-cover transition-transform group-hover/item:scale-110"
+                                                fill
+                                                className="object-cover transition-transform group-hover/item:scale-110"
+                                                sizes="40px"
                                              />
                                           </div>
                                           <div className="flex-1 overflow-hidden">
@@ -268,10 +271,13 @@ export default function Navbar() {
                               isScrolled ? 'h-8 w-8' : 'h-10 w-10'
                            }`}
                         >
-                           <img
-                              src="https://ui-avatars.com/api/?name=User&background=220 14% 8%&color=fff"
+                           <Image
+                              src="https://ui-avatars.com/api/?name=User&background=220%2014%25%208%25&color=fff"
                               alt="Profile"
+                              fill
+                              unoptimized
                               className="h-full w-full object-cover"
+                              sizes="(max-width: 768px) 32px, 40px"
                            />
                         </button>
                      ) : (
@@ -353,10 +359,12 @@ export default function Navbar() {
                                           className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-all hover:bg-white/50"
                                        >
                                           <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-border/30 bg-white">
-                                             <img
+                                             <Image
                                                 src={product.images[0]}
                                                 alt={product.name}
-                                                className="h-full w-full object-cover"
+                                                fill
+                                                className="object-cover"
+                                                sizes="48px"
                                              />
                                           </div>
                                           <div className="flex-1 overflow-hidden">

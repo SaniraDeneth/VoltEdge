@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 export default function CartPage() {
    const { cart, removeFromCart, updateQuantity, cartTotal, cartCount } =
@@ -79,10 +80,12 @@ export default function CartPage() {
                               href={`/products/${item.id}`}
                               className="relative aspect-square w-full shrink-0 overflow-hidden rounded-2xl border border-border/30 bg-white sm:h-32 sm:w-32 cursor-pointer"
                            >
-                              <img
+                              <Image
                                  src={item.images[0]}
                                  alt={item.name}
-                                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                 fill
+                                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                 sizes="(max-width: 768px) 100vw, 128px"
                               />
                            </Link>
 
@@ -224,20 +227,29 @@ export default function CartPage() {
 
                   {/* Payment badges */}
                   <div className="mt-6 flex items-center justify-center gap-6 opacity-25 grayscale filter">
-                     <img
+                     <Image
                         src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
-                        className="h-4"
+                        height={16}
+                        width={50}
                         alt="Visa"
+                        unoptimized
+                        className="h-4 w-auto"
                      />
-                     <img
+                     <Image
                         src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
-                        className="h-6"
+                        height={24}
+                        width={40}
                         alt="Mastercard"
+                        unoptimized
+                        className="h-6 w-auto"
                      />
-                     <img
+                     <Image
                         src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
-                        className="h-5"
+                        height={20}
+                        width={80}
                         alt="PayPal"
+                        unoptimized
+                        className="h-5 w-auto"
                      />
                   </div>
                </div>
