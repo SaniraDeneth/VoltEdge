@@ -80,7 +80,11 @@ export async function apiRequest<T>(
 
    if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Something went wrong');
+      const message =
+         errorData.error?.message ||
+         errorData.message ||
+         'Something went wrong';
+      throw new Error(message);
    }
 
    return response.json();
@@ -137,6 +141,11 @@ export const authApi = {
    logout: () =>
       apiRequest<{ message: string }>('/users/logout', {
          method: 'POST',
+      }),
+   googleLogin: (credential: string) =>
+      apiRequest<AuthResponse>('/users/social-auth', {
+         method: 'POST',
+         body: JSON.stringify({ credential }),
       }),
    getMe: () => apiRequest<User>('/users/me'),
 };

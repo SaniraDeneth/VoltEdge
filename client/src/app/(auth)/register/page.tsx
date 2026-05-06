@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 const GoogleIcon = () => (
    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
@@ -28,11 +29,55 @@ const GoogleIcon = () => (
 );
 
 export default function RegisterPage() {
+   const { register, googleLogin, isLoading } = useAuth();
    const [name, setName] = useState('');
    const [email, setEmail] = useState('');
    const [password, setPassword] = useState('');
    const [showPassword, setShowPassword] = useState(false);
-   const { register, isLoading } = useAuth();
+
+   const handleGoogleClick = () => {
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+      if (!clientId) {
+         toast.error('Google Client ID is missing.');
+         return;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (typeof window !== 'undefined' && (window as any).google) {
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         (window as any).google.accounts.id.initialize({
+            client_id: clientId,
+            callback: (response: { credential?: string }) => {
+               if (response.credential) {
+                  googleLogin(response.credential);
+               }
+            },
+            cancel_on_tap_outside: false,
+         });
+
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         (window as any).google.accounts.id.prompt(
+            (notification: {
+               isNotDisplayed: () => boolean;
+               isSkippedMoment: () => boolean;
+            }) => {
+               if (
+                  notification.isNotDisplayed() ||
+                  notification.isSkippedMoment()
+               ) {
+                  toast.error(
+                     'Google signup overlay was blocked. Please enable cookies or try again later.'
+                  );
+               }
+            }
+         );
+      } else {
+         toast.error(
+            'Google identity is initializing, please try again in a moment.'
+         );
+      }
+   };
 
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -40,6 +85,7 @@ export default function RegisterPage() {
          await register({ name, email, password });
       } catch {
          // Error handled in context
+         void 0;
       }
    };
 
@@ -163,7 +209,11 @@ export default function RegisterPage() {
             </div>
 
             <div className="mt-6">
-               <button className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-bold text-slate-700 transition-all hover:bg-slate-50 hover:border-slate-300">
+               <button
+                  type="button"
+                  onClick={handleGoogleClick}
+                  className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-bold text-slate-700 transition-all hover:bg-slate-50 hover:border-slate-300"
+               >
                   <GoogleIcon />
                   Continue with Google
                </button>

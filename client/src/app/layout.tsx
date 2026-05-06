@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Toaster } from 'react-hot-toast';
+import Script from 'next/script';
 import { CartProvider } from '@/context/CartContext';
 import { AuthProvider } from '@/context/AuthContext';
 import './globals.css';
@@ -16,6 +17,12 @@ export default function RootLayout({
 }>) {
    return (
       <html lang="en">
+         <head>
+            <Script
+               src="https://accounts.google.com/gsi/client"
+               strategy="beforeInteractive"
+            />
+         </head>
          <body className="antialiased">
             <AuthProvider>
                <CartProvider>

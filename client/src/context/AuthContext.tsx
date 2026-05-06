@@ -12,6 +12,7 @@ interface AuthContextType {
    isLoading: boolean;
    login: (data: Record<string, string>) => Promise<void>;
    register: (data: Record<string, string>) => Promise<void>;
+   googleLogin: (credential: string) => Promise<void>;
    logout: () => Promise<void>;
 }
 
@@ -86,6 +87,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
    };
 
+   const googleLogin = async (credential: string) => {
+      try {
+         setIsLoading(true);
+         const response = await authApi.googleLogin(credential);
+         handleAuthSuccess(response);
+         toast.success(`Logged in with Google as ${response.user.name}`);
+      } catch (error: unknown) {
+         const message =
+            error instanceof Error ? error.message : 'Google login failed';
+         toast.error(message);
+         throw error;
+      } finally {
+         setIsLoading(false);
+      }
+   };
+
    const logout = async () => {
       try {
          await authApi.logout();
@@ -107,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             isLoading,
             login,
             register,
+            googleLogin,
             logout,
          }}
       >

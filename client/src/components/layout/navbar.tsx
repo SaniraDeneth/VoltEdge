@@ -275,7 +275,10 @@ export default function Navbar() {
                                  }`}
                               >
                                  <Image
-                                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=220%2014%25%208%25&color=fff`}
+                                    src={
+                                       user?.avatar ||
+                                       `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=220%2014%25%208%25&color=fff`
+                                    }
                                     alt="Profile"
                                     fill
                                     unoptimized
@@ -441,7 +444,10 @@ export default function Navbar() {
                               <div className="flex items-center gap-4 px-5 py-2">
                                  <div className="relative h-12 w-12 overflow-hidden rounded-full border-2 border-accent/20">
                                     <Image
-                                       src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=220%2014%25%208%25&color=fff`}
+                                       src={
+                                          user?.avatar ||
+                                          `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=220%2014%25%208%25&color=fff`
+                                       }
                                        alt="Profile"
                                        fill
                                        unoptimized
