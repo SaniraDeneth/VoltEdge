@@ -1,23 +1,44 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Search, Menu, X, Zap, ShoppingBag } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import {
+   Search,
+   Menu,
+   X,
+   Zap,
+   ShoppingBag,
+   ArrowRight,
+   Loader2,
+} from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { productsApi } from '@/lib/api-client';
+import type { Product } from '@/types';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
    const [isScrolled, setIsScrolled] = useState(false);
    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
    const [isLoggedIn] = useState(true);
-
+   const [searchQuery, setSearchQuery] = useState('');
+   const [recommendations, setRecommendations] = useState<Product[]>([]);
+   const [isSearching, setIsSearching] = useState(false);
+   const [showSuggestions, setShowSuggestions] = useState(false);
+   const searchRef = useRef<HTMLDivElement>(null);
+   const router = useRouter();
    const pathname = usePathname();
 
    const navLinks = [
       { name: 'Home', href: '/' },
-      { name: 'Smartphones', href: '/smartphones' },
-      { name: 'Accessories', href: '/accessories' },
-      { name: 'Deals', href: '/deals' },
-      { name: 'Support', href: '/support' },
+      { name: 'Products', href: '/products' },
+      {
+         name: 'Smartphones',
+         href: '/products?category=69fcc56bd2effd25a1411d4e',
+      },
+      {
+         name: 'Accessories',
+         href: '/products?category=69fcc56bd2effd25a1411d4f',
+      },
    ];
 
    useEffect(() => {
@@ -26,28 +47,74 @@ export default function Navbar() {
       };
 
       setIsMobileMenuOpen(false);
-
       handleScroll();
 
       const scrollCheckInterval = setInterval(handleScroll, 50);
-
       const stopIntervalTimeout = setTimeout(() => {
          clearInterval(scrollCheckInterval);
       }, 200);
 
       window.addEventListener('scroll', handleScroll, { passive: true });
 
+      const handleClickOutside = (event: MouseEvent) => {
+         if (
+            searchRef.current &&
+            !searchRef.current.contains(event.target as Node)
+         ) {
+            setShowSuggestions(false);
+         }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+
       return () => {
          window.removeEventListener('scroll', handleScroll);
+         document.removeEventListener('mousedown', handleClickOutside);
          clearInterval(scrollCheckInterval);
          clearTimeout(stopIntervalTimeout);
       };
    }, [pathname]);
 
+   useEffect(() => {
+      const fetchRecommendations = async () => {
+         if (searchQuery.length < 2) {
+            setRecommendations([]);
+            return;
+         }
+
+         setIsSearching(true);
+         try {
+            const data = await productsApi.getAll({
+               search: searchQuery,
+               limit: 5,
+            });
+            setRecommendations(data.products);
+         } catch (error) {
+            console.error('Error fetching recommendations:', error);
+         } finally {
+            setIsSearching(false);
+         }
+      };
+
+      const timeoutId = setTimeout(fetchRecommendations, 300);
+      return () => clearTimeout(timeoutId);
+   }, [searchQuery]);
+
+   const handleSearchSubmit = (e?: React.FormEvent) => {
+      e?.preventDefault();
+      if (searchQuery.trim()) {
+         router.push(
+            `/products?search=${encodeURIComponent(searchQuery.trim())}`
+         );
+         setShowSuggestions(false);
+         setIsMobileMenuOpen(false);
+      }
+   };
+
    return (
       <div className="fixed top-0 z-50 flex w-full justify-center px-4 pt-4 transition-all duration-500 pointer-events-none">
          <header
-            className={`pointer-events-auto relative w-full overflow-hidden transition-[max-width,border-radius,background,padding,box-shadow] duration-500 ease-(--ease-spring) ${
+            className={`pointer-events-auto relative w-full transition-[max-width,border-radius,background,padding,box-shadow] duration-500 ease-(--ease-spring) ${
                isScrolled
                   ? `glass max-w-7xl py-1 shadow-lg ${isMobileMenuOpen ? 'rounded-[24px]' : 'rounded-[32px]'}`
                   : `max-w-7xl border border-border/40 py-3 backdrop-blur-xl ${isMobileMenuOpen ? 'rounded-[24px]' : 'rounded-[24px]'}`
@@ -91,17 +158,90 @@ export default function Navbar() {
                </nav>
 
                <div className="relative z-10 flex items-center gap-4">
-                  <div className="group relative hidden lg:block">
-                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-accent" />
-                     <input
-                        type="text"
-                        placeholder="Search..."
-                        className={`rounded-full border border-input bg-background/50 pl-9 pr-4 text-sm backdrop-blur-sm outline-none transition-all duration-500 ease-(--ease-apple) focus:border-ring focus:ring-1 focus:ring-ring focus:bg-background ${
-                           isScrolled
-                              ? 'h-9 w-32 focus:w-48'
-                              : 'h-10 w-48 focus:w-64'
-                        }`}
-                     />
+                  <div
+                     className="group relative hidden lg:block"
+                     ref={searchRef}
+                  >
+                     <form
+                        onSubmit={handleSearchSubmit}
+                        className="relative flex items-center"
+                     >
+                        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-accent" />
+                        <input
+                           type="text"
+                           placeholder="Search..."
+                           value={searchQuery}
+                           onChange={(e) => {
+                              setSearchQuery(e.target.value);
+                              setShowSuggestions(true);
+                           }}
+                           onFocus={() => setShowSuggestions(true)}
+                           className={`rounded-full border border-input bg-background/50 pl-10 pr-4 text-sm backdrop-blur-sm outline-none transition-all duration-500 ease-(--ease-apple) focus:border-accent focus:ring-4 focus:ring-accent/10 focus:bg-background ${
+                              isScrolled
+                                 ? 'h-9 w-32 focus:w-48'
+                                 : 'h-10 w-40 focus:w-64'
+                           }`}
+                        />
+                     </form>
+
+                     <AnimatePresence>
+                        {showSuggestions && searchQuery.length >= 2 && (
+                           <motion.div
+                              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                              className="absolute left-0 top-full z-50 mt-3 w-80 overflow-hidden rounded-2xl border border-white/40 bg-white/95 p-2 shadow-2xl backdrop-blur-2xl"
+                           >
+                              {isSearching ? (
+                                 <div className="flex items-center justify-center py-8">
+                                    <Loader2 className="h-5 w-5 animate-spin text-accent" />
+                                 </div>
+                              ) : recommendations.length > 0 ? (
+                                 <div className="space-y-1">
+                                    <p className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+                                       Suggested Products
+                                    </p>
+                                    {recommendations.map((product) => (
+                                       <button
+                                          key={product.id}
+                                          onClick={() => {
+                                             router.push(
+                                                `/products/${product.id}`
+                                             );
+                                             setShowSuggestions(false);
+                                             setSearchQuery('');
+                                          }}
+                                          className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-all hover:bg-accent/5 group/item"
+                                       >
+                                          <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-border/50 bg-white">
+                                             <img
+                                                src={product.images[0]}
+                                                alt={product.name}
+                                                className="h-full w-full object-cover transition-transform group-hover/item:scale-110"
+                                             />
+                                          </div>
+                                          <div className="flex-1 overflow-hidden">
+                                             <p className="truncate text-xs font-bold text-foreground">
+                                                {product.name}
+                                             </p>
+                                             <p className="text-[10px] font-medium text-muted-foreground">
+                                                ${product.price}
+                                             </p>
+                                          </div>
+                                          <ArrowRight className="h-3 w-3 translate-x-[-10px] opacity-0 transition-all group-hover/item:translate-x-0 group-hover/item:opacity-100 text-accent" />
+                                       </button>
+                                    ))}
+                                 </div>
+                              ) : (
+                                 <div className="py-8 text-center">
+                                    <p className="text-xs font-medium text-muted-foreground">
+                                       No products found
+                                    </p>
+                                 </div>
+                              )}
+                           </motion.div>
+                        )}
+                     </AnimatePresence>
                   </div>
 
                   <Link
@@ -158,17 +298,90 @@ export default function Navbar() {
                }`}
             >
                <div className="overflow-hidden">
-                  <div className="flex flex-col space-y-2 p-6">
-                     {navLinks.map((link) => (
-                        <Link
-                           key={link.name}
-                           href={link.href}
-                           className="rounded-xl px-4 py-3 text-lg font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground text-center"
-                           onClick={() => setIsMobileMenuOpen(false)}
+                  <div className="flex flex-col space-y-4 p-6">
+                     <form
+                        onSubmit={handleSearchSubmit}
+                        className="relative mb-2"
+                     >
+                        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                        <input
+                           type="text"
+                           placeholder="Search products..."
+                           value={searchQuery}
+                           onChange={(e) => setSearchQuery(e.target.value)}
+                           className="w-full rounded-2xl border border-border/50 bg-surface py-3.5 pl-12 pr-14 text-sm outline-none focus:border-accent"
+                        />
+                        <button
+                           type="submit"
+                           className="absolute right-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground shadow-md transition-transform active:scale-90"
                         >
-                           {link.name}
-                        </Link>
-                     ))}
+                           <Search className="h-4 w-4" />
+                        </button>
+                     </form>
+
+                     <AnimatePresence>
+                        {searchQuery.length >= 2 && (
+                           <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="mb-4 overflow-hidden rounded-2xl border border-border/50 bg-surface/50 backdrop-blur-sm"
+                           >
+                              {isSearching ? (
+                                 <div className="flex items-center justify-center py-6">
+                                    <Loader2 className="h-5 w-5 animate-spin text-accent" />
+                                 </div>
+                              ) : recommendations.length > 0 ? (
+                                 <div className="p-2 space-y-1">
+                                    {recommendations.map((product) => (
+                                       <button
+                                          key={product.id}
+                                          onClick={() => {
+                                             router.push(`/products/${product.id}`);
+                                             setIsMobileMenuOpen(false);
+                                             setSearchQuery('');
+                                          }}
+                                          className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-all hover:bg-white/50"
+                                       >
+                                          <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-border/30 bg-white">
+                                             <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
+                                          </div>
+                                          <div className="flex-1 overflow-hidden">
+                                             <p className="truncate text-sm font-bold text-foreground">{product.name}</p>
+                                             <p className="text-xs font-medium text-muted-foreground">${product.price}</p>
+                                          </div>
+                                          <ArrowRight className="h-4 w-4 text-accent" />
+                                       </button>
+                                    ))}
+                                 </div>
+                              ) : (
+                                 <div className="py-6 text-center">
+                                    <p className="text-xs font-medium text-muted-foreground">No products found</p>
+                                 </div>
+                              )}
+                           </motion.div>
+                        )}
+                     </AnimatePresence>
+                     
+                     <div className="space-y-1">
+                        {navLinks.map((link) => (
+                           <Link
+                              key={link.name}
+                              href={link.href}
+                              className={`flex w-full items-center justify-between rounded-xl px-5 py-3.5 text-lg font-bold transition-all ${
+                                 pathname === link.href
+                                    ? 'bg-accent/10 text-accent'
+                                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                              }`}
+                              onClick={() => setIsMobileMenuOpen(false)}
+                           >
+                              {link.name}
+                              <ArrowRight
+                                 className={`h-4 w-4 transition-opacity ${pathname === link.href ? 'opacity-100' : 'opacity-0'}`}
+                              />
+                           </Link>
+                        ))}
+                     </div>
                   </div>
                </div>
             </div>
