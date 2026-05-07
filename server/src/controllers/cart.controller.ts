@@ -252,3 +252,55 @@ export const clearCart = async (
    await cart.save();
    return res.status(HTTP_STATUS.OK).json(cart);
 };
+
+export const mergeCart = async (
+   req: ProtectedRequest,
+   res: Response,
+   _next: NextFunction
+) => {
+   const { items } = req.body as {
+      items: { productId: string; quantity: number }[];
+   };
+   const userId = req.user.id;
+
+   let cart = await Cart.findOne({ userId });
+   if (!cart) {
+      cart = await Cart.create({ userId, items: [], totalAmount: 0 });
+   }
+
+   for (const item of items) {
+      const product = await Product.findById(item.productId);
+      if (!product || !product.availability) continue;
+
+      const itemIndex = cart.items.findIndex(
+         (cartItem) => cartItem.productId.toString() === item.productId
+      );
+
+      const currentQuantity =
+         itemIndex > -1 ? cart.items[itemIndex]!.quantity : 0;
+      const newQuantity = Math.min(
+         currentQuantity + item.quantity,
+         product.countInStock
+      );
+
+      if (itemIndex > -1) {
+         cart.items[itemIndex]!.quantity = newQuantity;
+         cart.items[itemIndex]!.price = product.price;
+      } else {
+         cart.items.push({
+            productId: product._id,
+            quantity: newQuantity,
+            price: product.price,
+         });
+      }
+   }
+
+   cart.totalAmount = cart.items.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+   );
+
+   await cart.save();
+   const populatedCart = await cart.populate('items.productId');
+   return res.status(HTTP_STATUS.OK).json(populatedCart);
+};

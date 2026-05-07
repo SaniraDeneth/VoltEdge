@@ -7,11 +7,12 @@ import {
    removeItemFromCart,
    updateCartItemQuantity,
    clearCart,
+   mergeCart,
 } from '../controllers/cart.controller.js';
 import { asyncHandler } from '../utils/async.handler.js';
 import { protect } from '../middlewares/auth.middleware.js';
 import { validate } from '../middlewares/validate.middleware.js';
-import { addToCartSchema } from '../schemas/cart.schema.js';
+import { addToCartSchema, mergeCartSchema } from '../schemas/cart.schema.js';
 
 const cartRoutes = Router();
 
@@ -31,6 +32,7 @@ cartRoutes.post(
 );
 cartRoutes.post('/remove-item', asyncHandler(removeItemFromCart));
 cartRoutes.post('/clear', asyncHandler(clearCart));
+cartRoutes.post('/merge', validate(mergeCartSchema), asyncHandler(mergeCart));
 cartRoutes.get('/', asyncHandler(getCart));
 
 export default cartRoutes;

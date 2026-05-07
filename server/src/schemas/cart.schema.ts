@@ -17,4 +17,14 @@ export const addToCartSchema = z.object({
    quantity: z.number().min(1, 'Quantity must be at least 1'),
 });
 
+export const mergeCartSchema = z.object({
+   items: z.array(
+      z.object({
+         productId: z.string({ message: 'Product ID is required' }),
+         quantity: z.number().min(1, 'Quantity must be at least 1'),
+      })
+   ),
+});
+
 export type CartInput = z.infer<typeof addToCartSchema>;
+export type MergeCartInput = z.infer<typeof mergeCartSchema>;
