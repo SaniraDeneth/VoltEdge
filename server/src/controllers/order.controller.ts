@@ -16,7 +16,7 @@ export const createOrder = async (
    res: Response,
    _next: NextFunction
 ) => {
-   const { items } = req.body as OrderInput;
+   const { items, shippingAddress, contactInfo } = req.body as OrderInput;
 
    if (!items || items.length === 0) {
       throw new AppError('No order items', HTTP_STATUS.BAD_REQUEST, 'NO_ITEMS');
@@ -62,6 +62,8 @@ export const createOrder = async (
       userId: req.user.id,
       items: orderItems,
       totalAmount,
+      shippingAddress,
+      contactInfo,
    });
 
    for (const item of orderItems) {

@@ -19,9 +19,14 @@ const categorySchema = new Schema<Category>(
       toJSON: {
          virtuals: true,
          versionKey: false,
-         transform: (_doc, ret) => {
-            const { _id: _, __v: __, ...rest } = ret;
-            return rest;
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         transform: (_doc, ret: any) => {
+            if (ret._id) {
+               ret.id = ret._id.toString();
+               delete ret._id;
+            }
+            delete ret.__v;
+            return ret;
          },
       },
    }

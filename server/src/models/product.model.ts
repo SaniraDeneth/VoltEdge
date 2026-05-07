@@ -84,13 +84,24 @@ const productSchema = new Schema<Product>(
       toJSON: {
          virtuals: true,
          versionKey: false,
-         transform: (_doc, ret) => {
-            const { _id: _, __v: __, brandId, categoryId, ...rest } = ret;
-            return {
-               ...rest,
-               brand: brandId,
-               category: categoryId,
-            };
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         transform: (_doc, ret: any) => {
+            if (ret._id) {
+               ret.id = ret._id.toString();
+               delete ret._id;
+            }
+            delete ret.__v;
+
+            if (ret.brandId) {
+               ret.brand = ret.brandId;
+               delete ret.brandId;
+            }
+            if (ret.categoryId) {
+               ret.category = ret.categoryId;
+               delete ret.categoryId;
+            }
+
+            return ret;
          },
       },
    }

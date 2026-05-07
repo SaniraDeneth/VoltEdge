@@ -9,9 +9,14 @@ const requiredEnvVars = [
    'NODE_ENV',
    'GOOGLE_CLIENT_ID',
    'FRONTEND_URL',
+   'STRIPE_SECRET_KEY',
+   'STRIPE_WEBHOOK_SECRET',
 ] as const;
 
 for (const envVar of requiredEnvVars) {
+   if (envVar === 'STRIPE_WEBHOOK_SECRET' && process.env.NODE_ENV === 'dev') {
+      continue;
+   }
    if (!process.env[envVar]) {
       throw new Error(`FATAL ERROR: ${envVar} is not defined in .env file`);
    }
@@ -25,6 +30,8 @@ export const ENV = {
    MONGODB_URI: process.env.MONGODB_URI!,
    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
    FRONTEND_URL: process.env.FRONTEND_URL!,
+   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY!,
+   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || '',
    CLOUDINARY: {
       CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || '',
       API_KEY: process.env.CLOUDINARY_API_KEY || '',

@@ -8,6 +8,17 @@ type Order = {
       price: number;
    }[];
    totalAmount: number;
+   shippingAddress: {
+      address: string;
+      city: string;
+      zipCode: string;
+   };
+   contactInfo: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      phone: string;
+   };
    status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 };
 
@@ -46,6 +57,17 @@ const orderSchema = new Schema<Order>(
          type: Number,
          required: true,
          min: 0,
+      },
+      shippingAddress: {
+         address: { type: String, required: true },
+         city: { type: String, required: true },
+         zipCode: { type: String, required: true },
+      },
+      contactInfo: {
+         firstName: { type: String, required: true },
+         lastName: { type: String, required: true },
+         email: { type: String, required: true },
+         phone: { type: String, required: true },
       },
       status: {
          type: String,
