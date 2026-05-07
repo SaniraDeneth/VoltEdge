@@ -15,10 +15,16 @@ import {
 import { useCart } from '@/context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 export default function CartPage() {
    const { cart, removeFromCart, updateQuantity, cartTotal, cartCount } =
       useCart();
+   const router = useRouter();
+
+   const handleCheckout = () => {
+      router.push('/checkout');
+   };
 
    if (cart.length === 0) {
       return (
@@ -212,7 +218,10 @@ export default function CartPage() {
                   </div>
 
                   {/* CTA */}
-                  <button className="group relative mt-7 flex w-full cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-full bg-foreground py-4 font-black uppercase tracking-widest text-background transition-all hover:bg-noir hover:shadow-2xl active:scale-[0.98]">
+                  <button
+                     onClick={handleCheckout}
+                     className="group relative mt-7 flex w-full cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-full bg-foreground py-4 font-black uppercase tracking-widest text-background transition-all hover:bg-noir hover:shadow-2xl active:scale-[0.98]"
+                  >
                      <span className="relative z-10 flex items-center gap-3">
                         Proceed to Checkout
                         <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

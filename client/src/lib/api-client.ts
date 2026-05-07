@@ -98,6 +98,8 @@ import type {
    User,
    AuthResponse,
    Cart,
+   Order,
+   OrderInput,
 } from '@/types';
 
 export const productsApi = {
@@ -177,4 +179,29 @@ export const cartApi = {
          method: 'POST',
          body: JSON.stringify({ items }),
       }),
+};
+
+export const paymentApi = {
+   createCheckoutSession: (
+      items: { productId: string; quantity: number }[],
+      orderId: string
+   ) =>
+      apiRequest<{ url: string }>('/payments/create-checkout-session', {
+         method: 'POST',
+         body: JSON.stringify({ items, orderId }),
+      }),
+   verifyPayment: (sessionId: string) =>
+      apiRequest<{ success: boolean; status: string }>(
+         `/payments/verify/${sessionId}`
+      ),
+};
+
+export const ordersApi = {
+   create: (data: OrderInput) =>
+      apiRequest<Order>('/orders', {
+         method: 'POST',
+         body: JSON.stringify(data),
+      }),
+   getAll: () => apiRequest<Order[]>('/orders'),
+   getById: (id: string) => apiRequest<Order>(`/orders/${id}`),
 };

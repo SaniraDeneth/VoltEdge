@@ -55,7 +55,7 @@ export interface AuthResponse {
 }
 
 export interface BackendCartItem {
-   productId: Product & { _id: string };
+   productId: Product & { id: string; _id?: string };
    quantity: number;
    price: number;
 }
@@ -63,4 +63,31 @@ export interface BackendCartItem {
 export interface Cart {
    items: BackendCartItem[];
    totalAmount: number;
+}
+
+export interface OrderInput {
+   items: Array<{
+      productId: string;
+      quantity: number;
+      price: number;
+   }>;
+   shippingAddress: {
+      address: string;
+      city: string;
+      zipCode: string;
+   };
+   contactInfo: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      phone: string;
+   };
+}
+
+export interface Order extends OrderInput {
+   id: string;
+   userId: string;
+   totalAmount: number;
+   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+   createdAt: string;
 }
