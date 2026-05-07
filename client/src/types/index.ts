@@ -53,3 +53,14 @@ export interface AuthResponse {
    user: User;
    token: string;
 }
+
+export interface BackendCartItem {
+   productId: Product & { _id: string };
+   quantity: number;
+   price: number;
+}
+
+export interface Cart {
+   items: BackendCartItem[];
+   totalAmount: number;
+}

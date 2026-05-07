@@ -97,6 +97,7 @@ import type {
    Pagination,
    User,
    AuthResponse,
+   Cart,
 } from '@/types';
 
 export const productsApi = {
@@ -148,4 +149,32 @@ export const authApi = {
          body: JSON.stringify({ credential }),
       }),
    getMe: () => apiRequest<User>('/users/me'),
+};
+
+export const cartApi = {
+   get: () => apiRequest<Cart>('/cart'),
+   addItem: (data: { productId: string; quantity: number }) =>
+      apiRequest<Cart>('/cart/add', {
+         method: 'POST',
+         body: JSON.stringify(data),
+      }),
+   updateQuantity: (data: { productId: string; quantity: number }) =>
+      apiRequest<Cart>('/cart/update-quantity', {
+         method: 'POST',
+         body: JSON.stringify(data),
+      }),
+   removeItem: (productId: string) =>
+      apiRequest<Cart>('/cart/remove-item', {
+         method: 'POST',
+         body: JSON.stringify({ productId }),
+      }),
+   clear: () =>
+      apiRequest<Cart>('/cart/clear', {
+         method: 'POST',
+      }),
+   merge: (items: { productId: string; quantity: number }[]) =>
+      apiRequest<Cart>('/cart/merge', {
+         method: 'POST',
+         body: JSON.stringify({ items }),
+      }),
 };
