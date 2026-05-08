@@ -122,7 +122,7 @@ export const getOrder = async (
 
    const order = await Order.findById(id).populate(
       'items.productId',
-      'name image'
+      'name images'
    );
 
    if (!order) {

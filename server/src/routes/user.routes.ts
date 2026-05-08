@@ -6,6 +6,7 @@ import {
    refresh,
    logout,
    googleLogin,
+   updateProfile,
 } from '../controllers/user.controller.js';
 import { asyncHandler } from '../utils/async.handler.js';
 import { validate } from '../middlewares/validate.middleware.js';
@@ -28,5 +29,6 @@ userRoutes.post('/social-auth', asyncHandler(googleLogin));
 
 userRoutes.use(protect);
 userRoutes.get('/me', asyncHandler(getMe));
+userRoutes.patch('/profile', asyncHandler(updateProfile));
 
 export default userRoutes;

@@ -257,3 +257,27 @@ export const getMe = async (
 
    return res.status(HTTP_STATUS.OK).json(user.toJSON());
 };
+
+export const updateProfile = async (
+   req: ProtectedRequest,
+   res: Response,
+   _next: NextFunction
+) => {
+   const { name, phone, shippingAddress } = req.body;
+
+   const user = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+         ...(name && { name }),
+         ...(phone && { phone }),
+         ...(shippingAddress && { shippingAddress }),
+      },
+      { new: true, runValidators: true }
+   );
+
+   if (!user) {
+      throw new AppError('User not found', HTTP_STATUS.NOT_FOUND, 'NOT_FOUND');
+   }
+
+   return res.status(HTTP_STATUS.OK).json(user.toJSON());
+};

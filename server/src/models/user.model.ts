@@ -7,6 +7,12 @@ type User = {
    role: 'admin' | 'user';
    googleId?: string;
    avatar?: string;
+   phone: string;
+   shippingAddress: {
+      address: string;
+      city: string;
+      zipCode: string;
+   };
    authProvider: 'local' | 'google';
 };
 
@@ -44,6 +50,15 @@ const userSchema = new Schema<User>(
       },
       avatar: {
          type: String,
+      },
+      phone: {
+         type: String,
+         default: '',
+      },
+      shippingAddress: {
+         address: { type: String, default: '' },
+         city: { type: String, default: '' },
+         zipCode: { type: String, default: '' },
       },
       authProvider: {
          type: String,

@@ -17,9 +17,10 @@ export const createCheckoutSession = async (
    res: Response,
    _next: NextFunction
 ) => {
-   const { items, orderId } = req.body as {
+   const { items, orderId, fromCart } = req.body as {
       items: { productId: string; quantity: number }[];
       orderId: string;
+      fromCart?: boolean;
    };
 
    if (!items || items.length === 0) {
@@ -77,6 +78,7 @@ export const createCheckoutSession = async (
          metadata: {
             userId: req.user.id,
             orderId,
+            fromCart: String(!!fromCart),
             items: JSON.stringify(items),
          },
       });
@@ -121,6 +123,7 @@ export const verifyPayment = async (
          session.metadata?.userId === req.user.id
       ) {
          const orderId = session.metadata?.orderId;
+         const fromCart = session.metadata?.fromCart === 'true';
 
          if (orderId) {
             const order = await Order.findById(orderId);
@@ -132,7 +135,7 @@ export const verifyPayment = async (
 
             return res
                .status(HTTP_STATUS.OK)
-               .json({ success: true, status: 'paid' });
+               .json({ success: true, status: 'paid', fromCart });
          }
       }
 
