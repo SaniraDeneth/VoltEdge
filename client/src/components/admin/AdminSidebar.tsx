@@ -13,7 +13,9 @@ import {
    Zap,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import ConfirmDialog from '../ui/ConfirmDialog';
+import { useState } from 'react';
 
 interface AdminSidebarProps {
    isOpen: boolean;
@@ -30,6 +32,16 @@ const menuItems = [
 export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
    const pathname = usePathname();
    const { logout, user } = useAuth();
+   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+
+   const handleLogout = () => {
+      setIsLogoutConfirmOpen(true);
+   };
+
+   const confirmLogout = () => {
+      logout();
+      setIsLogoutConfirmOpen(false);
+   };
 
    return (
       <>
@@ -42,7 +54,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
          )}
 
          <aside
-            className={`fixed left-0 top-0 z-50 h-screen w-72 border-r border-border/50 bg-surface/50 backdrop-blur-2xl transition-transform duration-300 lg:translate-x-0 ${
+            className={`fixed left-0 top-0 z-50 h-screen w-72 border-r border-slate-100 bg-white transition-transform duration-300 lg:translate-x-0 ${
                isOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
          >
@@ -96,7 +108,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                </nav>
 
                <div className="mt-auto space-y-4">
-                  <div className="rounded-3xl border border-border/40 bg-background/50 p-4">
+                  <div className="rounded-3xl border border-border/40 bg-white p-4 shadow-sm">
                      <div className="flex items-center gap-3">
                         <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-accent/20 relative">
                            <Image
@@ -121,7 +133,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                   </div>
 
                   <button
-                     onClick={logout}
+                     onClick={handleLogout}
                      className="flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-sm font-bold text-red-500 transition-all hover:bg-red-500/10"
                   >
                      <LogOut className="h-5 w-5" />
@@ -130,6 +142,16 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                </div>
             </div>
          </aside>
+
+         <ConfirmDialog
+            isOpen={isLogoutConfirmOpen}
+            onClose={() => setIsLogoutConfirmOpen(false)}
+            onConfirm={confirmLogout}
+            title="Confirm Logout"
+            message="Are you sure you want to log out of the admin portal? Your current session will be terminated."
+            confirmText="Yes, Logout"
+            type="danger"
+         />
       </>
    );
 }

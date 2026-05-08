@@ -21,7 +21,7 @@ export default function AdminLayout({
 
    return (
       <AdminGuard>
-         <div className="min-h-screen bg-background flex">
+         <div className="min-h-screen bg-slate-50 flex">
             {/* Sidebar */}
             <AdminSidebar
                isOpen={isSidebarOpen}
@@ -31,18 +31,18 @@ export default function AdminLayout({
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0">
                {/* Mobile Header */}
-               <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/50 bg-background/50 px-6 backdrop-blur-xl lg:hidden">
+               <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6 lg:hidden">
                   <div className="flex items-center gap-2">
                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
                         <Menu className="h-5 w-5 text-white" />
                      </div>
-                     <span className="font-display text-lg font-black tracking-tight text-foreground">
+                     <span className="font-display text-lg font-black tracking-tight text-slate-900">
                         Volt<span className="text-accent italic">Edge</span>
                      </span>
                   </div>
                   <button
                      onClick={() => setIsSidebarOpen(true)}
-                     className="rounded-xl bg-surface p-2 text-muted-foreground transition-colors hover:text-foreground"
+                     className="rounded-xl bg-slate-50 p-2 text-slate-500 transition-colors hover:text-slate-900"
                   >
                      <Menu className="h-6 w-6" />
                   </button>

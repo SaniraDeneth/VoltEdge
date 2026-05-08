@@ -29,6 +29,22 @@ const productSchema = z.object({
       z.boolean()
    ),
    status: z.enum(['brandnew', 'used', 'refurbished']),
+   specifications: z.preprocess(
+      (val) => (typeof val === 'string' ? JSON.parse(val) : val),
+      z.array(
+         z.object({
+            label: z.string().min(1),
+            value: z.string().min(1),
+         })
+      )
+   ),
+   warranty: z.preprocess(
+      (val) => (typeof val === 'string' ? JSON.parse(val) : val),
+      z.object({
+         duration: z.string().min(1),
+         policy: z.string().optional(),
+      })
+   ),
 });
 
 export default productSchema;
