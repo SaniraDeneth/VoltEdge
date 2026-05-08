@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
-import { ordersApi } from '@/lib/api-client';
+import { orderApi } from '@/lib/api-client';
 import { Order } from '@/types';
 import {
    User as UserIcon,
@@ -77,7 +77,7 @@ export default function ProfilePage() {
    useEffect(() => {
       const fetchOrders = async () => {
          try {
-            const data = await ordersApi.getAll();
+            const data = await orderApi.getAll();
             setOrders(data);
          } catch (error) {
             console.error('Failed to fetch orders', error);

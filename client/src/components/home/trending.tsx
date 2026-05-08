@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import ProductCard from '../ui/card';
 import { motion, Variants } from 'framer-motion';
-import { productsApi } from '@/lib/api-client';
+import { productApi } from '@/lib/api-client';
 import type { Product } from '@/types';
 import { Loader2 } from 'lucide-react';
 
@@ -38,7 +38,7 @@ export default function Trending() {
    useEffect(() => {
       const fetchProducts = async () => {
          try {
-            const data = await productsApi.getAll({ limit: 8 });
+            const data = await productApi.getAll({ limit: 8 });
             setProducts(data.products);
          } catch (error) {
             console.error('Error fetching trending products:', error);

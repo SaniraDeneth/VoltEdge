@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, use, useRef } from 'react';
-import { productsApi, categoriesApi, brandsApi } from '@/lib/api-client';
+import { productApi, categoryApi, brandApi } from '@/lib/api-client';
 import type { Product, Category, Brand } from '@/types';
 import ProductCard from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,6 +20,7 @@ import {
    Filter,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 const SORT_OPTIONS = [
    { label: 'Newest First', value: '-createdAt' },
@@ -112,8 +113,8 @@ export default function ProductsPage({
       const fetchData = async () => {
          try {
             const [cats, brs] = await Promise.all([
-               categoriesApi.getAll(),
-               brandsApi.getAll(),
+               categoryApi.getAll(),
+               brandApi.getAll(),
             ]);
             setCategories(cats);
             setBrands(brs);
@@ -143,7 +144,7 @@ export default function ProductsPage({
             if (currentNewArrivals) params.newArrivals = 'true';
             if (currentSpecs) params.specs = currentSpecs;
 
-            const data = await productsApi.getAll(params);
+            const data = await productApi.getAll(params);
             setProducts(data.products);
             setPagination(data.pagination);
          } catch (error) {
@@ -312,7 +313,7 @@ export default function ProductsPage({
                   <input
                      type="text"
                      placeholder="Search products..."
-                     className="w-full rounded-2xl border border-border/50 bg-white/60 backdrop-blur-md py-3 pl-12 pr-4 text-foreground outline-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/20 shadow-sm"
+                     className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-12 pr-4 text-foreground outline-none transition-all focus:border-accent focus:ring-4 focus:ring-accent/10 shadow-sm"
                      value={currentSearch || ''}
                      onChange={(e) => updateFilter('search', e.target.value)}
                   />
@@ -325,7 +326,7 @@ export default function ProductsPage({
                   {/* Reset Filters at the top */}
                   <button
                      onClick={clearFilters}
-                     className="mb-8 flex w-full items-center justify-center gap-2 rounded-xl border border-border/50 bg-white/60 backdrop-blur-md py-3 text-sm font-bold text-foreground/50 transition-all duration-300 hover:bg-white/80 hover:text-foreground hover:shadow-sm"
+                     className="mb-8 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-500 transition-all duration-300 hover:bg-slate-50 hover:text-slate-900 hover:shadow-sm"
                   >
                      <Filter className="h-4 w-4" />
                      Reset All Filters
@@ -490,58 +491,14 @@ export default function ProductsPage({
                         Filters
                      </button>
 
-                     <div className="relative" ref={sortRef}>
-                        <button
-                           onClick={() => setIsSortOpen(!isSortOpen)}
-                           className="flex w-52 items-center justify-between rounded-xl border border-border/50 bg-white/60 backdrop-blur-md px-4 py-2.5 text-sm font-bold text-foreground transition-all duration-300 hover:border-accent hover:bg-white/80 hover:shadow-sm"
-                        >
-                           <span className="truncate">
-                              {
-                                 SORT_OPTIONS.find(
-                                    (opt) => opt.value === currentSort
-                                 )?.label
-                              }
-                           </span>
-                           <ChevronDown
-                              className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`}
-                           />
-                        </button>
-
-                        <AnimatePresence>
-                           {isSortOpen && (
-                              <motion.div
-                                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                 className="absolute right-0 z-40 mt-2 w-52 overflow-hidden rounded-2xl border border-white/40 bg-white/80 p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-2xl"
-                              >
-                                 {SORT_OPTIONS.map((option) => (
-                                    <button
-                                       key={option.value}
-                                       onClick={() => {
-                                          updateFilter('sort', option.value);
-                                          setIsSortOpen(false);
-                                       }}
-                                       className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm font-bold transition-all duration-200 ${
-                                          currentSort === option.value
-                                             ? 'bg-accent text-white shadow-lg shadow-accent/20'
-                                             : 'text-slate-600 hover:bg-slate-100/50 hover:text-slate-900'
-                                       }`}
-                                    >
-                                       {option.label}
-                                       {currentSort === option.value && (
-                                          <motion.div
-                                             layoutId="activeSort"
-                                             className="rounded-full bg-white/20 p-0.5"
-                                          >
-                                             <Check className="h-3.5 w-3.5" />
-                                          </motion.div>
-                                       )}
-                                    </button>
-                                 ))}
-                              </motion.div>
-                           )}
-                        </AnimatePresence>
+                     <div className="w-52">
+                        <CustomSelect
+                           label=""
+                           options={SORT_OPTIONS.map(opt => ({ id: opt.value, name: opt.label }))}
+                           value={currentSort}
+                           onChange={(val) => updateFilter('sort', val)}
+                           placeholder="Sort By"
+                        />
                      </div>
                   </div>
 

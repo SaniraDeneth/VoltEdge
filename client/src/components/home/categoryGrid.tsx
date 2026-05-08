@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
-import { categoriesApi } from '@/lib/api-client';
+import { categoryApi } from '@/lib/api-client';
 
 interface CategoryCardProps {
    href: string;
@@ -43,7 +43,7 @@ const CategoryCard = ({
 
 export default async function CategoryGrid() {
    // Fetch categories to get their real IDs for filtering
-   const categories = await categoriesApi.getAll().catch(() => []);
+   const categories = await categoryApi.getAll().catch(() => []);
 
    const getCategoryHref = (name: string) => {
       const cat = categories.find((c) => c.name.toLowerCase() === name.toLowerCase());

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { ShoppingBag, ShieldCheck, Truck, Star, Loader2 } from 'lucide-react';
-import { productsApi } from '@/lib/api-client';
+import { productApi, categoryApi, brandApi } from '@/lib/api-client';
 import type { Product } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'react-hot-toast';
@@ -25,7 +25,7 @@ export default function ProductPage() {
       const fetchProduct = async () => {
          try {
             setLoading(true);
-            const data = await productsApi.getById(id);
+            const data = await productApi.getById(id);
             console.log(data);
             setProduct(data);
             if (data.images?.length > 0) {

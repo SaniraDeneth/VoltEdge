@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-import { ordersApi, paymentApi } from '@/lib/api-client';
+import { orderApi, paymentApi } from '@/lib/api-client';
 import { Order, Product } from '@/types';
 import {
    Package,
@@ -67,7 +67,7 @@ export default function OrderDetailsPage() {
    useEffect(() => {
       const fetchOrder = async () => {
          try {
-            const data = await ordersApi.getById(id as string);
+            const data = await orderApi.getById(id as string);
             setOrder(data);
          } catch (error) {
             console.error('Failed to fetch order', error);
@@ -130,7 +130,7 @@ export default function OrderDetailsPage() {
                {/* Main Column */}
                <div className="lg:col-span-8 space-y-10">
                   {/* Status Banner */}
-                  <div className="bg-surface/50 backdrop-blur-2xl border border-border/50 rounded-[2.5rem] p-10 overflow-hidden relative">
+                  <div className="bg-white border border-border/50 rounded-[2.5rem] p-10 overflow-hidden relative shadow-sm">
                      <div
                         className={`absolute top-0 left-0 w-1.5 h-full ${status.color.replace('text', 'bg')}`}
                      />
@@ -158,7 +158,7 @@ export default function OrderDetailsPage() {
                   </div>
 
                   {/* Items List */}
-                  <div className="bg-surface/50 backdrop-blur-2xl border border-border/50 rounded-[2.5rem] p-10">
+                  <div className="bg-white border border-border/50 rounded-[2.5rem] p-10 shadow-sm">
                      <div className="flex items-center gap-4 mb-10">
                         <div className="p-3 bg-foreground/5 rounded-xl">
                            <ShoppingBag className="w-6 h-6 text-foreground" />
@@ -234,7 +234,7 @@ export default function OrderDetailsPage() {
                {/* Sidebar */}
                <div className="lg:col-span-4 space-y-10">
                   {/* Shipping Info */}
-                  <div className="bg-surface/50 backdrop-blur-2xl border border-border/50 rounded-[2.5rem] p-10">
+                  <div className="bg-white border border-border/50 rounded-[2.5rem] p-10 shadow-sm">
                      <h3 className="text-xl font-bold text-foreground mb-8 tracking-tight uppercase flex items-center gap-3">
                         <MapPin className="w-5 h-5 text-accent" />
                         Shipping To
@@ -287,7 +287,7 @@ export default function OrderDetailsPage() {
                   </div>
 
                   {/* Payment Summary */}
-                  <div className="bg-surface/50 backdrop-blur-2xl border border-border/50 rounded-[2.5rem] p-10 shadow-xl relative overflow-hidden">
+                  <div className="bg-white border border-border/50 rounded-[2.5rem] p-10 shadow-xl relative overflow-hidden">
                      <div className="absolute top-0 right-0 w-32 h-32 bg-accent blur-[80px] -mr-16 -mt-16 opacity-10" />
                      <h3 className="text-xl font-bold text-foreground mb-8 tracking-tight uppercase flex items-center gap-3 relative z-10">
                         <CreditCard className="w-5 h-5 text-accent" />
@@ -353,7 +353,7 @@ export default function OrderDetailsPage() {
                            <button
                               onClick={async () => {
                                  try {
-                                    const updated = await ordersApi.cancel(
+                                    const updated = await orderApi.cancel(
                                        order.id
                                     );
                                     setOrder(updated);

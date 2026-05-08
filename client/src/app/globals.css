@@ -146,6 +146,9 @@
       -moz-osx-font-smoothing: grayscale;
       scroll-behavior: smooth;
    }
+   html, body {
+      min-height: 100%;
+   }
    body {
       @apply bg-background text-foreground;
       font-family:
@@ -173,7 +176,7 @@
 
 @layer components {
    .glass {
-      @apply bg-background/70 backdrop-blur-xl backdrop-saturate-150 border border-border/60;
+      @apply bg-background border border-border/60 shadow-sm;
    }
    .glass-dark {
       background: hsl(220 14% 8% / 0.6);

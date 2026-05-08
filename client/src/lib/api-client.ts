@@ -21,11 +21,13 @@ export async function apiRequest<T>(
          ? localStorage.getItem('volt-edge-token')
          : null;
 
+   const isFormData = options.body instanceof FormData;
+
    const response = await fetch(`${BASE_URL}${endpoint}`, {
       ...options,
       credentials: 'include',
       headers: {
-         'Content-Type': 'application/json',
+         ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
          ...(token ? { Authorization: `Bearer ${token}` } : {}),
          ...options.headers,
       },
@@ -87,7 +89,12 @@ export async function apiRequest<T>(
       throw new Error(message);
    }
 
-   return response.json();
+   if (response.status === 204) {
+      return {} as T;
+   }
+
+   const text = await response.text();
+   return text ? JSON.parse(text) : ({} as T);
 }
 
 import type {
@@ -102,7 +109,7 @@ import type {
    OrderInput,
 } from '@/types';
 
-export const productsApi = {
+export const productApi = {
    getById: (id: string) => apiRequest<Product>(`/products/${id}`),
    getAll: (params?: Record<string, string | number | boolean>) => {
       const queryString = params
@@ -116,13 +123,27 @@ export const productsApi = {
          `/products${queryString}`
       );
    },
+   create: (data: FormData | Partial<Product>) =>
+      apiRequest<Product>('/products', {
+         method: 'POST',
+         body: data instanceof FormData ? data : JSON.stringify(data),
+      }),
+   update: (id: string, data: FormData | Partial<Product>) =>
+      apiRequest<Product>(`/products/${id}`, {
+         method: 'PUT',
+         body: data instanceof FormData ? data : JSON.stringify(data),
+      }),
+   delete: (id: string) =>
+      apiRequest<{ message: string }>(`/products/${id}`, {
+         method: 'DELETE',
+      }),
 };
 
-export const categoriesApi = {
+export const categoryApi = {
    getAll: () => apiRequest<Category[]>('/categories'),
 };
 
-export const brandsApi = {
+export const brandApi = {
    getAll: () => apiRequest<Brand[]>('/brands'),
 };
 
@@ -217,7 +238,7 @@ export const paymentApi = {
       ),
 };
 
-export const ordersApi = {
+export const orderApi = {
    create: (data: OrderInput) =>
       apiRequest<Order>('/orders', {
          method: 'POST',

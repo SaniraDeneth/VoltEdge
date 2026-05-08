@@ -13,6 +13,7 @@ import {
 import confetti from 'canvas-confetti';
 import { useCart } from '@/context/CartContext';
 import { paymentApi } from '@/lib/api-client';
+import { toast } from 'react-hot-toast';
 
 function SuccessContent() {
    const router = useRouter();
@@ -109,7 +110,7 @@ function SuccessContent() {
                      charged, please contact our support with your Session ID.
                   </p>
                </div>
-               <div className="p-4 bg-surface/50 backdrop-blur-xl rounded-2xl border border-border font-mono text-xs text-muted-foreground break-all">
+               <div className="p-4 bg-white border border-border rounded-2xl font-mono text-xs text-muted-foreground break-all shadow-sm">
                   Session: {sessionId}
                </div>
                <button
@@ -131,7 +132,7 @@ function SuccessContent() {
                initial={{ scale: 0.9, opacity: 0 }}
                animate={{ scale: 1, opacity: 1 }}
                transition={{ type: 'spring', damping: 15 }}
-               className="bg-surface/60 backdrop-blur-3xl border border-white rounded-[3rem] p-12 text-center shadow-2xl relative overflow-hidden"
+               className="bg-white border border-slate-100 rounded-[3rem] p-12 text-center shadow-2xl relative overflow-hidden"
             >
                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-accent/10 blur-[100px] -z-10" />
 
@@ -195,7 +196,7 @@ function SuccessContent() {
                         navigator.clipboard.writeText(
                            `${shareData.text} - ${shareData.url}`
                         );
-                        alert('Order details copied to clipboard!');
+                        toast.success('Order details copied to clipboard!');
                      }
                   }}
                   className="flex items-center gap-3 bg-surface/40 backdrop-blur-xl border border-border/50 px-6 py-3 rounded-full hover:bg-surface/80 hover:border-accent/30 hover:text-accent transition-all font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground group"

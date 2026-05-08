@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ordersApi } from '@/lib/api-client';
+import { orderApi } from '@/lib/api-client';
 import { Order } from '@/types';
 import {
    Package,
@@ -61,7 +61,7 @@ export default function OrdersPage() {
    useEffect(() => {
       const fetchOrders = async () => {
          try {
-            const data = await ordersApi.getAll();
+            const data = await orderApi.getAll();
             setOrders(data);
          } catch (error) {
             console.error('Failed to fetch orders', error);

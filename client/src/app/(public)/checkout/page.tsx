@@ -8,7 +8,7 @@ import { AnimatePresence } from 'framer-motion';
 import CheckoutProgress from '@/components/checkout/CheckoutProgress';
 import ShippingForm from '@/components/checkout/ShippingForm';
 import OrderSummary from '@/components/checkout/OrderSummary';
-import { paymentApi, ordersApi } from '@/lib/api-client';
+import { paymentApi, orderApi } from '@/lib/api-client';
 import { toast } from 'react-hot-toast';
 
 export default function CheckoutPage() {
@@ -40,7 +40,7 @@ export default function CheckoutPage() {
          }));
 
          // 1. Create Order in our database first
-         const order = await ordersApi.create({
+         const order = await orderApi.create({
             items,
             shippingAddress: {
                address: shippingData.address,

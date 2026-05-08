@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { productsApi } from '@/lib/api-client';
+import { productApi } from '@/lib/api-client';
 import type { Product } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
@@ -89,7 +89,7 @@ export default function Navbar() {
 
          setIsSearching(true);
          try {
-            const data = await productsApi.getAll({
+            const data = await productApi.getAll({
                search: searchQuery,
                limit: 5,
             });
