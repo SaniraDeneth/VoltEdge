@@ -46,6 +46,12 @@ export interface User {
    email: string;
    role: 'user' | 'admin';
    avatar?: string;
+   phone?: string;
+   shippingAddress?: {
+      address: string;
+      city: string;
+      zipCode: string;
+   };
    createdAt: string;
 }
 
@@ -65,12 +71,14 @@ export interface Cart {
    totalAmount: number;
 }
 
+export interface OrderItem {
+   productId: string | Product;
+   quantity: number;
+   price: number;
+}
+
 export interface OrderInput {
-   items: Array<{
-      productId: string;
-      quantity: number;
-      price: number;
-   }>;
+   items: OrderItem[];
    shippingAddress: {
       address: string;
       city: string;

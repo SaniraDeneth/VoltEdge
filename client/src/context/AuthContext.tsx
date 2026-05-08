@@ -14,6 +14,7 @@ interface AuthContextType {
    register: (data: Record<string, string>) => Promise<void>;
    googleLogin: (credential: string) => Promise<void>;
    logout: () => Promise<void>;
+   updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -116,6 +117,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
    };
 
+   const updateProfile = async (data: Partial<User>) => {
+      try {
+         setIsLoading(true);
+         const updatedUser = await authApi.updateProfile(data);
+         setUser(updatedUser);
+         toast.success('Profile updated successfully');
+      } catch (error: unknown) {
+         const message =
+            error instanceof Error ? error.message : 'Failed to update profile';
+         toast.error(message);
+         throw error;
+      } finally {
+         setIsLoading(false);
+      }
+   };
+
    return (
       <AuthContext.Provider
          value={{
@@ -126,6 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             register,
             googleLogin,
             logout,
+            updateProfile,
          }}
       >
          {children}

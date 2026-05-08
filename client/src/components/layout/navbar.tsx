@@ -298,6 +298,12 @@ export default function Navbar() {
                                           {user?.email}
                                        </p>
                                     </div>
+                                    <Link
+                                       href="/profile"
+                                       className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs font-bold text-white/60 transition-colors hover:bg-white/5 hover:text-white"
+                                    >
+                                       My Profile
+                                    </Link>
                                     <button
                                        onClick={() => logout()}
                                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs font-bold text-white/60 transition-colors hover:bg-accent/10 hover:text-accent"
@@ -463,6 +469,14 @@ export default function Navbar() {
                                     </p>
                                  </div>
                               </div>
+                              <Link
+                                 href="/profile"
+                                 onClick={() => setIsMobileMenuOpen(false)}
+                                 className="flex w-full items-center justify-between rounded-xl bg-secondary px-5 py-3.5 text-lg font-bold text-foreground transition-all active:scale-95"
+                              >
+                                 My Profile
+                                 <ArrowRight className="h-4 w-4" />
+                              </Link>
                               <button
                                  onClick={() => {
                                     logout();

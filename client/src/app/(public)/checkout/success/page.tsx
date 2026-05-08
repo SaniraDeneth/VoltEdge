@@ -29,7 +29,7 @@ function SuccessContent() {
                const response = await paymentApi.verifyPayment(sessionId);
                if (response.success) {
                   setVerifying(false);
-                  if (cart.length > 0) {
+                  if (response.fromCart && cart.length > 0) {
                      clearCart();
                   }
                } else {
@@ -179,14 +179,32 @@ function SuccessContent() {
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
                transition={{ delay: 1 }}
-               className="mt-10 flex justify-center items-center gap-6 text-muted-foreground"
+               className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-6"
             >
-               <button className="flex items-center gap-2 hover:text-foreground transition-colors font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50">
-                  <Share2 className="w-4 h-4" />
+               <button
+                  onClick={() => {
+                     const shareData = {
+                        title: 'VoltEdge Purchase',
+                        text: `Just upgraded my tech at VoltEdge! Order #${sessionId?.slice(-8).toUpperCase() || 'VOLT'}`,
+                        url: window.location.origin,
+                     };
+
+                     if (navigator.share) {
+                        navigator.share(shareData).catch(console.error);
+                     } else {
+                        navigator.clipboard.writeText(
+                           `${shareData.text} - ${shareData.url}`
+                        );
+                        alert('Order details copied to clipboard!');
+                     }
+                  }}
+                  className="flex items-center gap-3 bg-surface/40 backdrop-blur-xl border border-border/50 px-6 py-3 rounded-full hover:bg-surface/80 hover:border-accent/30 hover:text-accent transition-all font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground group"
+               >
+                  <Share2 className="w-4 h-4 transition-transform group-hover:scale-110" />
                   Share Purchase
                </button>
-               <div className="w-1 h-1 bg-border rounded-full" />
-               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+               <div className="hidden sm:block w-1 h-1 bg-border rounded-full" />
+               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
                   Order ID: {sessionId?.slice(-8).toUpperCase() || 'VOLT-TEST'}
                </p>
             </motion.div>

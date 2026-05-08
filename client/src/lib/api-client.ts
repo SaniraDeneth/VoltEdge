@@ -151,6 +151,11 @@ export const authApi = {
          body: JSON.stringify({ credential }),
       }),
    getMe: () => apiRequest<User>('/users/me'),
+   updateProfile: (data: Partial<User>) =>
+      apiRequest<User>('/users/profile', {
+         method: 'PATCH',
+         body: JSON.stringify(data),
+      }),
 };
 
 export const cartApi = {
@@ -184,14 +189,15 @@ export const cartApi = {
 export const paymentApi = {
    createCheckoutSession: (
       items: { productId: string; quantity: number }[],
-      orderId: string
+      orderId: string,
+      fromCart?: boolean
    ) =>
       apiRequest<{ url: string }>('/payments/create-checkout-session', {
          method: 'POST',
-         body: JSON.stringify({ items, orderId }),
+         body: JSON.stringify({ items, orderId, fromCart }),
       }),
    verifyPayment: (sessionId: string) =>
-      apiRequest<{ success: boolean; status: string }>(
+      apiRequest<{ success: boolean; status: string; fromCart?: boolean }>(
          `/payments/verify/${sessionId}`
       ),
 };
@@ -204,4 +210,8 @@ export const ordersApi = {
       }),
    getAll: () => apiRequest<Order[]>('/orders'),
    getById: (id: string) => apiRequest<Order>(`/orders/${id}`),
+   cancel: (id: string) =>
+      apiRequest<Order>(`/orders/${id}/cancel`, {
+         method: 'PATCH',
+      }),
 };

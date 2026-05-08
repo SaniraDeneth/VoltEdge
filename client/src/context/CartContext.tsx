@@ -62,10 +62,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                   const mappedCart = response.items.map(
                      (item: BackendCartItem) => ({
                         ...item.productId,
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         id:
                            item.productId.id ||
-                           (item.productId as any)._id?.toString(),
+                           item.productId._id?.toString() ||
+                           '',
                         quantity: item.quantity,
                      })
                   );
@@ -80,10 +80,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                   const mappedCart = response.items.map(
                      (item: BackendCartItem) => ({
                         ...item.productId,
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         id:
                            item.productId.id ||
-                           (item.productId as any)._id?.toString(),
+                           item.productId._id?.toString() ||
+                           '',
                         quantity: item.quantity,
                      })
                   );

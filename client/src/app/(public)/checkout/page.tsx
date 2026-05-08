@@ -58,7 +58,8 @@ export default function CheckoutPage() {
          // 2. Create Stripe Checkout Session with the orderId
          const { url } = await paymentApi.createCheckoutSession(
             items,
-            order.id
+            order.id,
+            true // fromCart
          );
 
          // 3. Redirect to Stripe Checkout
