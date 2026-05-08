@@ -28,7 +28,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
    const [cart, setCart] = useState<CartItem[]>([]);
    const [isInitialized, setIsInitialized] = useState(false);
-   const { isAuthenticated } = useAuth();
+   const { isAuthenticated, user } = useAuth();
+   const isAdmin = user?.role === 'admin';
 
    // Load cart from localStorage on mount
    useEffect(() => {
@@ -46,7 +47,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
    // Sync cart with backend when authentication status changes
    useEffect(() => {
       const syncWithServer = async () => {
-         if (isAuthenticated && isInitialized) {
+         if (isAuthenticated && isInitialized && !isAdmin) {
             try {
                const savedCart = localStorage.getItem('volt-edge-cart');
                const localItems = savedCart ? JSON.parse(savedCart) : [];
@@ -96,7 +97,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       };
 
       syncWithServer();
-   }, [isAuthenticated, isInitialized]);
+   }, [isAuthenticated, isInitialized, isAdmin]);
 
    // Clear cart state on logout
    useEffect(() => {

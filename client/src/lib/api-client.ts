@@ -156,6 +156,21 @@ export const authApi = {
          method: 'PATCH',
          body: JSON.stringify(data),
       }),
+   getAll: () => apiRequest<User[]>('/users'),
+};
+
+export const adminApi = {
+   getStats: () =>
+      apiRequest<{
+         totalRevenue: number;
+         revenueChange: number;
+         totalOrders: number;
+         ordersChange: number;
+         totalProducts: number;
+         totalUsers: number;
+         usersChange: number;
+         recentOrders: Order[];
+      }>('/admin/stats'),
 };
 
 export const cartApi = {
