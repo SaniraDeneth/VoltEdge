@@ -7,11 +7,12 @@ import {
    logout,
    googleLogin,
    updateProfile,
+   getUsers,
 } from '../controllers/user.controller.js';
 import { asyncHandler } from '../utils/async.handler.js';
 import { validate } from '../middlewares/validate.middleware.js';
 import { userSchema } from '../schemas/user.schema.js';
-import { protect } from '../middlewares/auth.middleware.js';
+import { protect, restrictTo } from '../middlewares/auth.middleware.js';
 
 const userRoutes = Router();
 
@@ -30,5 +31,7 @@ userRoutes.post('/social-auth', asyncHandler(googleLogin));
 userRoutes.use(protect);
 userRoutes.get('/me', asyncHandler(getMe));
 userRoutes.patch('/profile', asyncHandler(updateProfile));
+
+userRoutes.get('/', restrictTo('admin'), asyncHandler(getUsers));
 
 export default userRoutes;

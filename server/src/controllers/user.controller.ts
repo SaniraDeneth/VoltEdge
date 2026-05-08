@@ -281,3 +281,12 @@ export const updateProfile = async (
 
    return res.status(HTTP_STATUS.OK).json(user.toJSON());
 };
+
+export const getUsers = async (
+   req: ProtectedRequest,
+   res: Response,
+   _next: NextFunction
+) => {
+   const users = await User.find().sort({ createdAt: -1 });
+   return res.status(HTTP_STATUS.OK).json(users);
+};
