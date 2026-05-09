@@ -73,7 +73,7 @@ export const createCheckoutSession = async (
          line_items: lineItems,
          mode: 'payment',
          success_url: `${ENV.FRONTEND_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-         cancel_url: `${ENV.FRONTEND_URL}/cart`,
+         cancel_url: `${ENV.FRONTEND_URL}/orders/${orderId}`,
          customer_email: req.user.email,
          metadata: {
             userId: req.user.id,
@@ -131,6 +131,11 @@ export const verifyPayment = async (
             // Only update if not already processing to avoid double triggers
             if (order && order.status === 'pending') {
                await Order.findByIdAndUpdate(orderId, { status: 'processing' });
+               for (const item of order.items) {
+                  await Product.findByIdAndUpdate(item.productId, {
+                     $inc: { sold: item.quantity },
+                  });
+               }
             }
 
             return res
@@ -186,8 +191,16 @@ export const stripeWebhook = async (req: Request, res: Response) => {
       const orderId = session.metadata?.orderId;
 
       if (orderId) {
-         await Order.findByIdAndUpdate(orderId, { status: 'processing' });
-         console.log(`Order ${orderId} marked as processing via webhook.`);
+         const order = await Order.findById(orderId);
+         if (order && order.status === 'pending') {
+            await Order.findByIdAndUpdate(orderId, { status: 'processing' });
+            for (const item of order.items) {
+               await Product.findByIdAndUpdate(item.productId, {
+                  $inc: { sold: item.quantity },
+               });
+            }
+            console.log(`Order ${orderId} marked as processing via webhook.`);
+         }
       }
    }
 

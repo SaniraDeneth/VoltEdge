@@ -10,6 +10,7 @@ type Product = {
    countInStock: number;
    availability: boolean;
    status: 'brandnew' | 'used' | 'refurbished';
+   sold: number;
    specifications: { label: string; value: string }[];
    warranty: {
       duration: string;
@@ -62,6 +63,10 @@ const productSchema = new Schema<Product>(
       availability: {
          type: Boolean,
          default: true,
+      },
+      sold: {
+         type: Number,
+         default: 0,
       },
       status: {
          type: String,

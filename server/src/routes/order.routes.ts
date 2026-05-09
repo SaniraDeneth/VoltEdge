@@ -6,6 +6,7 @@ import {
    getOrder,
    updateOrderStatus,
    cancelOrder,
+   deleteOrder,
 } from '../controllers/order.controller.js';
 import { asyncHandler } from '../utils/async.handler.js';
 import { validate } from '../middlewares/validate.middleware.js';
@@ -23,7 +24,8 @@ orderRouter
 
 orderRouter
    .route('/:id')
-   .get(validate(idParamSchema, 'params'), asyncHandler(getOrder));
+   .get(validate(idParamSchema, 'params'), asyncHandler(getOrder))
+   .delete(validate(idParamSchema, 'params'), asyncHandler(deleteOrder));
 
 orderRouter.patch(
    '/:id/status',

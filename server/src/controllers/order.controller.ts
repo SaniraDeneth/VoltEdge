@@ -175,7 +175,7 @@ export const cancelOrder = async (
 
    for (const item of order.items) {
       await Product.findByIdAndUpdate(item.productId, {
-         $inc: { countInStock: item.quantity },
+         $inc: { countInStock: item.quantity, sold: -item.quantity },
       });
    }
 
@@ -197,4 +197,47 @@ export const updateOrderStatus = async (
    }
 
    return res.status(HTTP_STATUS.OK).json(order);
+};
+
+export const deleteOrder = async (
+   req: ProtectedRequest,
+   res: Response,
+   _next: NextFunction
+) => {
+   const { id } = req.params as IdParam;
+   const userId = req.user.id;
+
+   const order = await Order.findById(id);
+
+   if (!order) {
+      throw new AppError('Order not found', HTTP_STATUS.NOT_FOUND, 'NOT_FOUND');
+   }
+
+   if (order.userId.toString() !== userId && req.user.role !== 'admin') {
+      throw new AppError(
+         'You do not have permission to delete this order',
+         HTTP_STATUS.FORBIDDEN,
+         'FORBIDDEN'
+      );
+   }
+
+   if (order.status !== 'pending') {
+      throw new AppError(
+         'Only pending orders can be deleted',
+         HTTP_STATUS.BAD_REQUEST,
+         'INVALID_STATUS'
+      );
+   }
+
+   // Restore stock
+   for (const item of order.items) {
+      await Product.findByIdAndUpdate(item.productId, {
+         $inc: { countInStock: item.quantity },
+      });
+   }
+
+   await Order.findByIdAndDelete(id);
+   return res
+      .status(HTTP_STATUS.OK)
+      .json({ message: 'Order deleted successfully' });
 };
