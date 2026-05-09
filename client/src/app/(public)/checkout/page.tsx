@@ -32,6 +32,7 @@ export default function CheckoutPage() {
    };
 
    const handlePayment = async () => {
+      let createdOrderId: string | null = null;
       try {
          const items = cart.map((item) => ({
             productId: item.id,
@@ -54,6 +55,7 @@ export default function CheckoutPage() {
                phone: shippingData.phone,
             },
          });
+         createdOrderId = order.id;
 
          // 2. Create Stripe Checkout Session with the orderId
          const { url } = await paymentApi.createCheckoutSession(
@@ -65,6 +67,13 @@ export default function CheckoutPage() {
          // 3. Redirect to Stripe Checkout
          window.location.href = url;
       } catch (error: unknown) {
+         if (createdOrderId) {
+            try {
+               await orderApi.delete(createdOrderId);
+            } catch (deleteError) {
+               console.error('Failed to cleanup order after stripe failure:', deleteError);
+            }
+         }
          const message =
             error instanceof Error
                ? error.message

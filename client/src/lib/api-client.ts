@@ -250,4 +250,8 @@ export const orderApi = {
       apiRequest<Order>(`/orders/${id}/cancel`, {
          method: 'PATCH',
       }),
+   delete: (id: string) =>
+      apiRequest<{ message: string }>(`/orders/${id}`, {
+         method: 'DELETE',
+      }),
 };

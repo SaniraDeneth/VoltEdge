@@ -7,6 +7,7 @@ import { motion, Variants } from 'framer-motion';
 import { productApi } from '@/lib/api-client';
 import type { Product } from '@/types';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 
 const containerVariants: Variants = {
    hidden: { opacity: 0 },
@@ -41,7 +42,7 @@ export default function NewArrivals() {
       setLoading(true);
       setError(null);
       try {
-         const data = await productApi.getAll({ limit: 8 });
+         const data = await productApi.getAll({ limit: 8, sort: '-createdAt' });
          setProducts(data.products);
       } catch (err: unknown) {
          console.error('Error fetching new arrivals:', err);
@@ -79,9 +80,10 @@ export default function NewArrivals() {
                <div className="flex items-center gap-4">
                   <Link
                      href="/products"
-                     className="rounded-full bg-surface px-6 py-2.5 text-sm font-bold text-foreground border border-border/40 transition-colors hover:bg-muted hover:shadow-sm hover-lift"
+                     className="group flex items-center gap-2 rounded-full border border-border/50 bg-surface px-6 py-3 text-sm font-bold text-foreground transition-all hover:border-accent hover:text-accent hover:shadow-glow"
                   >
                      Explore All
+                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </Link>
                </div>
             </motion.div>

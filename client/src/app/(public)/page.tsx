@@ -3,6 +3,7 @@ import CategoryGrid from '@/components/home/categoryGrid';
 import HeroSection from '@/components/home/heroSection';
 import Newsletter from '@/components/home/newsletter';
 import NewArrivals from '@/components/home/newArrivals';
+import Trending from '@/components/home/trending';
 import ValueProps from '@/components/home/valueProps';
 
 export default function page() {
@@ -12,6 +13,7 @@ export default function page() {
          <CategoryGrid />
          <CameraFeature />
          <NewArrivals />
+         <Trending />
          <ValueProps />
          <Newsletter />
       </main>

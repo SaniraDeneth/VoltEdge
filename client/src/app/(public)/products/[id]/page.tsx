@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { ShoppingBag, ShieldCheck, Truck, Star, Loader2 } from 'lucide-react';
-import { productApi, categoryApi, brandApi } from '@/lib/api-client';
+import { productApi } from '@/lib/api-client';
 import type { Product } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'react-hot-toast';
@@ -151,10 +151,16 @@ export default function ProductPage() {
                         <p className="font-display text-3xl font-medium text-foreground">
                            ${product.price}
                         </p>
-                        <div className="flex items-center gap-1 text-yellow-500">
-                           <Star className="h-4 w-4 fill-current" />
+                        <div className="flex items-center gap-4">
+                           <div className="flex items-center gap-1 text-yellow-500">
+                              <Star className="h-4 w-4 fill-current" />
+                              <span className="text-sm font-bold text-muted-foreground">
+                                 (4.9/5)
+                              </span>
+                           </div>
+                           <div className="h-1 w-1 rounded-full bg-border" />
                            <span className="text-sm font-bold text-muted-foreground">
-                              (4.9/5)
+                              {product.sold || 0} Sold
                            </span>
                         </div>
                      </div>
