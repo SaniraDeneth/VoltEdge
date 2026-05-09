@@ -17,13 +17,11 @@ export default function RootLayout({
 }>) {
    return (
       <html lang="en">
-         <head>
+         <body className="antialiased">
             <Script
                src="https://accounts.google.com/gsi/client"
                strategy="beforeInteractive"
             />
-         </head>
-         <body className="antialiased">
             <AuthProvider>
                <CartProvider>
                   <div className="relative flex min-h-screen flex-col bg-background">

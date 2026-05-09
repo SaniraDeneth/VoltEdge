@@ -1,20 +1,19 @@
 'use client';
 
-import { useState, useEffect, use, useRef } from 'react';
+import { useState, useEffect, use } from 'react';
 import { productApi, categoryApi, brandApi } from '@/lib/api-client';
 import type { Product, Category, Brand } from '@/types';
 import ProductCard from '@/components/ui/card';
+import ProductCardSkeleton from '@/components/ui/ProductCardSkeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
    Search,
    SlidersHorizontal,
    X,
    ChevronDown,
-   Loader2,
    ShoppingBag,
    ChevronLeft,
    ChevronRight,
-   Check,
    Tag,
    Clock,
    Filter,
@@ -76,8 +75,6 @@ export default function ProductsPage({
    });
    const [loading, setLoading] = useState(true);
    const [showMobileFilters, setShowMobileFilters] = useState(false);
-   const [isSortOpen, setIsSortOpen] = useState(false);
-   const sortRef = useRef<HTMLDivElement>(null);
 
    // Accordion States - Category is open if pre-selected, others closed by default
    const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -94,20 +91,6 @@ export default function ProductsPage({
 
    const [minPriceInput, setMinPriceInput] = useState(currentMinPrice || '');
    const [maxPriceInput, setMaxPriceInput] = useState(currentMaxPrice || '');
-
-   useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-         if (
-            sortRef.current &&
-            !sortRef.current.contains(event.target as Node)
-         ) {
-            setIsSortOpen(false);
-         }
-      };
-      document.addEventListener('mousedown', handleClickOutside);
-      return () =>
-         document.removeEventListener('mousedown', handleClickOutside);
-   }, []);
 
    useEffect(() => {
       const fetchData = async () => {
@@ -494,7 +477,10 @@ export default function ProductsPage({
                      <div className="w-52">
                         <CustomSelect
                            label=""
-                           options={SORT_OPTIONS.map(opt => ({ id: opt.value, name: opt.label }))}
+                           options={SORT_OPTIONS.map((opt) => ({
+                              id: opt.value,
+                              name: opt.label,
+                           }))}
                            value={currentSort}
                            onChange={(val) => updateFilter('sort', val)}
                            placeholder="Sort By"
@@ -503,8 +489,10 @@ export default function ProductsPage({
                   </div>
 
                   {loading ? (
-                     <div className="flex h-96 items-center justify-center">
-                        <Loader2 className="h-10 w-10 animate-spin text-accent" />
+                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-8">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                           <ProductCardSkeleton key={i} />
+                        ))}
                      </div>
                   ) : products.length > 0 ? (
                      <>

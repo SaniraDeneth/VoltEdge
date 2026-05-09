@@ -5,6 +5,7 @@ import { User, AuthResponse } from '@/types';
 import { authApi } from '@/lib/api-client';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import LoadingScreen from '@/components/ui/LoadingScreen';
 
 interface AuthContextType {
    user: User | null;
@@ -146,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             updateProfile,
          }}
       >
-         {children}
+         {isLoading ? <LoadingScreen /> : children}
       </AuthContext.Provider>
    );
 }

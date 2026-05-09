@@ -13,19 +13,16 @@ export default function HeroSection() {
       setMounted(true);
    }, []);
 
-   const { scrollYProgress } = useScroll({
-      target: containerRef,
-      offset: ['start start', 'end start'],
-   });
+   const { scrollY } = useScroll();
 
-   const yPhone = useTransform(scrollYProgress, [0, 0.5], [0, -800]);
-   const xLeft = useTransform(scrollYProgress, [0, 0.5], [0, -400]);
-   const xRight = useTransform(scrollYProgress, [0, 0.5], [0, 400]);
-   const yBottom = useTransform(scrollYProgress, [0, 0.5], [0, 400]);
-   const opacityFast = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
+   const yPhone = useTransform(scrollY, [0, 800], [0, -800]);
+   const xLeft = useTransform(scrollY, [0, 800], [0, -400]);
+   const xRight = useTransform(scrollY, [0, 800], [0, 400]);
+   const yBottom = useTransform(scrollY, [0, 800], [0, 400]);
+   const opacityFast = useTransform(scrollY, [0, 600], [1, 0]);
 
-   const scaleText = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1, 0.95]);
-   const opacityText = useTransform(scrollYProgress, [0.8, 1], [1, 0]);
+   const scaleText = useTransform(scrollY, [0, 800, 1600], [1, 1, 0.95]);
+   const opacityText = useTransform(scrollY, [1200, 1600], [1, 0]);
 
    if (!mounted) {
       return (
