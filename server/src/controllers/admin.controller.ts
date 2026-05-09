@@ -26,23 +26,28 @@ export const getStats = async (
    ] = await Promise.all([
       // Current Total Revenue
       Order.aggregate([
-         { $match: { status: { $ne: 'cancelled' } } },
+         {
+            $match: { status: { $in: ['processing', 'shipped', 'delivered'] } },
+         },
          { $group: { _id: null, total: { $sum: '$totalAmount' } } },
       ]),
       // Last Month Revenue (for growth calculation)
       Order.aggregate([
          {
             $match: {
-               status: { $ne: 'cancelled' },
+               status: { $in: ['processing', 'shipped', 'delivered'] },
                createdAt: { $gte: startOfLastMonth, $lt: startOfCurrentMonth },
             },
          },
          { $group: { _id: null, total: { $sum: '$totalAmount' } } },
       ]),
-      // Total Orders
-      Order.countDocuments(),
-      // Last Month Orders
+      // Total Orders (Paid checkouts)
       Order.countDocuments({
+         status: { $in: ['processing', 'shipped', 'delivered'] },
+      }),
+      // Last Month Orders (Paid checkouts)
+      Order.countDocuments({
+         status: { $in: ['processing', 'shipped', 'delivered'] },
          createdAt: { $gte: startOfLastMonth, $lt: startOfCurrentMonth },
       }),
       // Total Products
@@ -54,8 +59,8 @@ export const getStats = async (
          role: 'user',
          createdAt: { $gte: startOfLastMonth, $lt: startOfCurrentMonth },
       }),
-      // Recent Orders
-      Order.find()
+      // Recent Orders (Include paid checkouts)
+      Order.find({ status: { $in: ['processing', 'shipped', 'delivered'] } })
          .populate('userId', 'name email')
          .sort({ createdAt: -1 })
          .limit(5),
@@ -64,7 +69,7 @@ export const getStats = async (
    const currentMonthRevenue = await Order.aggregate([
       {
          $match: {
-            status: { $ne: 'cancelled' },
+            status: { $in: ['processing', 'shipped', 'delivered'] },
             createdAt: { $gte: startOfCurrentMonth },
          },
       },
@@ -82,6 +87,7 @@ export const getStats = async (
    );
 
    const currentMonthOrders = await Order.countDocuments({
+      status: { $in: ['processing', 'shipped', 'delivered'] },
       createdAt: { $gte: startOfCurrentMonth },
    });
    const orderChange = calculateChange(currentMonthOrders, lastMonthOrders);

@@ -252,10 +252,61 @@ export const updateOrderStatus = async (
       );
    }
 
-   const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
+   const order = await Order.findById(id);
 
    if (!order) {
       throw new AppError('Order not found', HTTP_STATUS.NOT_FOUND, 'NOT_FOUND');
+   }
+
+   if (order.status === 'cancelled') {
+      throw new AppError(
+         'Cannot update status of a cancelled order',
+         HTTP_STATUS.BAD_REQUEST,
+         'INVALID_STATUS'
+      );
+   }
+
+   const originalStatus = order.status;
+   order.status = status as
+      | 'pending'
+      | 'processing'
+      | 'shipped'
+      | 'delivered'
+      | 'cancelled';
+   await order.save();
+
+   // Trigger Stripe Refund and stock restoration if admin manually cancels a paid order
+   if (status === 'cancelled') {
+      // Trigger Stripe Refund if the order was paid (processing, shipped, or delivered)
+      if (originalStatus !== 'pending' && order.paymentIntentId) {
+         try {
+            await stripe.refunds.create({
+               payment_intent: order.paymentIntentId,
+            });
+            console.log(
+               `[Admin Cancel] Stripe refund successfully triggered by Admin for Order ${order._id}`
+            );
+         } catch (refundErr) {
+            console.error(
+               `[Admin Cancel] Stripe refund failed for Order ${order._id}:`,
+               refundErr
+            );
+         }
+      }
+
+      // Restore stock levels and decrement sold metrics
+      for (const item of order.items) {
+         const updateObj: { $inc: { countInStock: number; sold?: number } } = {
+            $inc: { countInStock: item.quantity },
+         };
+
+         // Only decrement sold count if the order was paid (not pending)
+         if (originalStatus !== 'pending') {
+            updateObj.$inc.sold = -item.quantity;
+         }
+
+         await Product.findByIdAndUpdate(item.productId, updateObj);
+      }
    }
 
    return res.status(HTTP_STATUS.OK).json(order);

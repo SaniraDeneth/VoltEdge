@@ -24,9 +24,14 @@ export const getProducts = async (
       status,
       newArrivals,
       specs,
+      isAdmin,
    } = req.query;
 
    const andFilters: Record<string, unknown>[] = [];
+
+   if (isAdmin !== 'true') {
+      andFilters.push({ availability: true });
+   }
 
    if (category) {
       andFilters.push({ categoryId: category });
