@@ -43,6 +43,7 @@ export interface Pagination {
 
 export interface User {
    id: string;
+   authProvider?: 'local' | 'google';
    name: string;
    email: string;
    role: 'user' | 'admin';
