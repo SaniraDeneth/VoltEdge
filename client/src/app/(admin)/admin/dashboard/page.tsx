@@ -16,6 +16,7 @@ import {
 import { motion } from 'framer-motion';
 import { adminApi } from '@/lib/api-client';
 import { Order, User } from '@/types';
+import Link from 'next/link';
 
 const statusStyles = {
    delivered: 'bg-emerald-500/10 text-emerald-500',
@@ -157,9 +158,12 @@ export default function AdminDashboardPage() {
                         <Clock className="w-5 h-5 text-accent" />
                         Recent Orders
                      </h2>
-                     <button className="text-[10px] font-black uppercase tracking-[0.2em] text-accent hover:underline">
+                     <Link
+                        href="/admin/orders"
+                        className="text-[10px] font-black uppercase tracking-[0.2em] text-accent hover:underline"
+                     >
                         View All
-                     </button>
+                     </Link>
                   </div>
                   <div className="overflow-x-auto">
                      <table className="w-full text-left">
@@ -191,7 +195,15 @@ export default function AdminDashboardPage() {
                                     className="group transition-colors hover:bg-background/40"
                                  >
                                     <td className="py-5 font-bold text-sm uppercase">
-                                       #{order.id.slice(-6)}
+                                       #
+                                       {(
+                                          order.id ||
+                                          (order as unknown as { _id?: string })
+                                             ._id ||
+                                          ''
+                                       )
+                                          .slice(-6)
+                                          .toUpperCase()}
                                     </td>
                                     <td className="py-5 text-sm font-medium">
                                        {customer?.name || 'Guest User'}

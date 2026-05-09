@@ -85,13 +85,13 @@ export default function OrdersPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
                <div>
-                  <button
-                     onClick={() => router.back()}
+                  <Link
+                     href="/"
                      className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4 font-black text-[10px] uppercase tracking-[0.2em]"
                   >
                      <ArrowLeft className="w-4 h-4" />
-                     Back
-                  </button>
+                     Home
+                  </Link>
                   <h1 className="font-display text-5xl font-bold text-foreground tracking-tight uppercase">
                      Order <span className="text-accent italic">History</span>
                   </h1>

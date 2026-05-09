@@ -19,10 +19,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 export default function Navbar() {
    const [isScrolled, setIsScrolled] = useState(false);
    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
    const { user, isAuthenticated, logout } = useAuth();
    const [searchQuery, setSearchQuery] = useState('');
    const [recommendations, setRecommendations] = useState<Product[]>([]);
@@ -305,7 +307,9 @@ export default function Navbar() {
                                        My Profile
                                     </Link>
                                     <button
-                                       onClick={() => logout()}
+                                       onClick={() =>
+                                          setIsLogoutConfirmOpen(true)
+                                       }
                                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs font-bold text-white/60 transition-colors hover:bg-accent/10 hover:text-accent"
                                     >
                                        Logout
@@ -479,7 +483,7 @@ export default function Navbar() {
                               </Link>
                               <button
                                  onClick={() => {
-                                    logout();
+                                    setIsLogoutConfirmOpen(true);
                                     setIsMobileMenuOpen(false);
                                  }}
                                  className="flex w-full items-center justify-between rounded-xl bg-accent/5 px-5 py-3.5 text-lg font-bold text-accent transition-all active:scale-95"
@@ -502,6 +506,18 @@ export default function Navbar() {
                   </div>
                </div>
             </div>
+            <ConfirmDialog
+               isOpen={isLogoutConfirmOpen}
+               onClose={() => setIsLogoutConfirmOpen(false)}
+               onConfirm={() => {
+                  logout();
+                  setIsLogoutConfirmOpen(false);
+               }}
+               title="Logout"
+               message="Are you sure you want to log out of your account?"
+               confirmText="Yes, Logout"
+               type="danger"
+            />
          </header>
       </div>
    );

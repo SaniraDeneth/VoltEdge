@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 
 import { orderApi, paymentApi } from '@/lib/api-client';
 import { Order, Product } from '@/types';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { toast } from 'react-hot-toast';
 import {
    Package,
    Clock,
@@ -63,6 +65,8 @@ export default function OrderDetailsPage() {
    const router = useRouter();
    const [order, setOrder] = useState<Order | null>(null);
    const [isLoading, setIsLoading] = useState(true);
+   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
+   const [isCancelling, setIsCancelling] = useState(false);
 
    useEffect(() => {
       const fetchOrder = async () => {
@@ -367,16 +371,7 @@ export default function OrderDetailsPage() {
                      {(order.status === 'pending' ||
                         order.status === 'processing') && (
                         <button
-                           onClick={async () => {
-                              try {
-                                 const updated = await orderApi.cancel(
-                                    order.id
-                                 );
-                                 setOrder(updated);
-                              } catch (error) {
-                                 console.error('Failed to cancel order', error);
-                              }
-                           }}
+                           onClick={() => setIsCancelConfirmOpen(true)}
                            className="w-full py-4 bg-red-500/10 border border-red-500/20 rounded-full text-red-500 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-red-500/20 transition-all"
                         >
                            Cancel Order
@@ -392,6 +387,31 @@ export default function OrderDetailsPage() {
                </div>
             </div>
          </div>
+         <ConfirmDialog
+            isOpen={isCancelConfirmOpen}
+            onClose={() => setIsCancelConfirmOpen(false)}
+            onConfirm={async () => {
+               setIsCancelling(true);
+               try {
+                  const updated = await orderApi.cancel(order.id);
+                  setOrder(updated);
+                  toast.success('Order cancelled successfully');
+               } catch (error) {
+                  toast.error(
+                     (error as { message?: string }).message ||
+                        'Failed to cancel order'
+                  );
+               } finally {
+                  setIsCancelling(false);
+                  setIsCancelConfirmOpen(false);
+               }
+            }}
+            title="Cancel Order"
+            message="Are you sure you want to cancel this order? This action is irreversible and will trigger a full refund."
+            confirmText="Yes, Cancel"
+            type="danger"
+            isLoading={isCancelling}
+         />
       </main>
    );
 }

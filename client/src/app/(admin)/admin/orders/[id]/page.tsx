@@ -23,6 +23,7 @@ import {
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import CustomSelect from '@/components/ui/CustomSelect';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 const statusConfig = {
    pending: {
@@ -79,6 +80,7 @@ export default function AdminOrderDetailsPage() {
    const [order, setOrder] = useState<Order | null>(null);
    const [isLoading, setIsLoading] = useState(true);
    const [isUpdating, setIsUpdating] = useState(false);
+   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
 
    const fetchOrder = async () => {
       try {
@@ -95,6 +97,14 @@ export default function AdminOrderDetailsPage() {
    useEffect(() => {
       if (id) fetchOrder();
    }, [id]);
+
+   const handleStatusSelect = (newStatus: string) => {
+      if (newStatus === 'cancelled') {
+         setIsCancelConfirmOpen(true);
+      } else {
+         handleStatusChange(newStatus);
+      }
+   };
 
    const handleStatusChange = async (newStatus: string) => {
       if (!id || !order) return;
@@ -477,7 +487,7 @@ export default function AdminOrderDetailsPage() {
                            placeholder="Change order status..."
                            options={STATUS_OPTIONS}
                            value={order.status}
-                           onChange={handleStatusChange}
+                           onChange={handleStatusSelect}
                         />
 
                         {isUpdating && (
@@ -602,6 +612,20 @@ export default function AdminOrderDetailsPage() {
                </div>
             </div>
          </div>
+         <ConfirmDialog
+            isOpen={isCancelConfirmOpen}
+            onClose={() => setIsCancelConfirmOpen(false)}
+            onConfirm={() => {
+               handleStatusChange('cancelled');
+               setIsCancelConfirmOpen(false);
+            }}
+            title="Confirm Order Cancellation"
+            message={`Are you sure you want to cancel Order #${order.id.slice(-8).toUpperCase()}? This action is irreversible, will issue a full automatic refund to the customer on Stripe, and restore the items back to the catalog stock.`}
+            confirmText="Yes, Cancel & Refund"
+            cancelText="No, Keep Active"
+            type="danger"
+            isLoading={isUpdating}
+         />
       </div>
    );
 }

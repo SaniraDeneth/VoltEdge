@@ -8,6 +8,7 @@ export interface Product {
    brand?: Brand;
    countInStock: number;
    status: string;
+   availability?: boolean;
    sold?: number;
    specifications: Array<{
       label: string;

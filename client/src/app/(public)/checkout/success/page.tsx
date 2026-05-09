@@ -3,17 +3,10 @@
 import React, { useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-   CheckCircle2,
-   Package,
-   ArrowRight,
-   Share2,
-   Loader2,
-} from 'lucide-react';
+import { CheckCircle2, Package, ArrowRight, Loader2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useCart } from '@/context/CartContext';
 import { paymentApi } from '@/lib/api-client';
-import { toast } from 'react-hot-toast';
 
 function SuccessContent() {
    const router = useRouter();
@@ -182,29 +175,6 @@ function SuccessContent() {
                transition={{ delay: 1 }}
                className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-6"
             >
-               <button
-                  onClick={() => {
-                     const shareData = {
-                        title: 'VoltEdge Purchase',
-                        text: `Just upgraded my tech at VoltEdge! Order #${sessionId?.slice(-8).toUpperCase() || 'VOLT'}`,
-                        url: window.location.origin,
-                     };
-
-                     if (navigator.share) {
-                        navigator.share(shareData).catch(console.error);
-                     } else {
-                        navigator.clipboard.writeText(
-                           `${shareData.text} - ${shareData.url}`
-                        );
-                        toast.success('Order details copied to clipboard!');
-                     }
-                  }}
-                  className="flex items-center gap-3 bg-surface/40 backdrop-blur-xl border border-border/50 px-6 py-3 rounded-full hover:bg-surface/80 hover:border-accent/30 hover:text-accent transition-all font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground group"
-               >
-                  <Share2 className="w-4 h-4 transition-transform group-hover:scale-110" />
-                  Share Purchase
-               </button>
-               <div className="hidden sm:block w-1 h-1 bg-border rounded-full" />
                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
                   Order ID: {sessionId?.slice(-8).toUpperCase() || 'VOLT-TEST'}
                </p>
