@@ -20,6 +20,7 @@ type Order = {
       phone: string;
    };
    status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+   paymentIntentId?: string;
 };
 
 export type OrderDocument = HydratedDocument<Order>;
@@ -74,6 +75,9 @@ const orderSchema = new Schema<Order>(
          required: true,
          enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
          default: 'pending',
+      },
+      paymentIntentId: {
+         type: String,
       },
    },
    {

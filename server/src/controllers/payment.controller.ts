@@ -130,7 +130,10 @@ export const verifyPayment = async (
 
             // Only update if not already processing to avoid double triggers
             if (order && order.status === 'pending') {
-               await Order.findByIdAndUpdate(orderId, { status: 'processing' });
+               await Order.findByIdAndUpdate(orderId, {
+                  status: 'processing',
+                  paymentIntentId: session.payment_intent as string,
+               });
                for (const item of order.items) {
                   await Product.findByIdAndUpdate(item.productId, {
                      $inc: { sold: item.quantity },
@@ -193,7 +196,10 @@ export const stripeWebhook = async (req: Request, res: Response) => {
       if (orderId) {
          const order = await Order.findById(orderId);
          if (order && order.status === 'pending') {
-            await Order.findByIdAndUpdate(orderId, { status: 'processing' });
+            await Order.findByIdAndUpdate(orderId, {
+               status: 'processing',
+               paymentIntentId: session.payment_intent as string,
+            });
             for (const item of order.items) {
                await Product.findByIdAndUpdate(item.productId, {
                   $inc: { sold: item.quantity },

@@ -8,6 +8,12 @@ import Product from '../models/product.model.js';
 import Cart from '../models/cart.model.js';
 import { idParamSchema } from '../schemas/common.schema.js';
 import type { z } from 'zod';
+import Stripe from 'stripe';
+import { ENV } from '../config/env.js';
+
+const stripe = new Stripe(ENV.STRIPE_SECRET_KEY, {
+   apiVersion: '2026-04-22.dahlia',
+});
 
 type IdParam = z.infer<typeof idParamSchema>;
 
@@ -99,14 +105,37 @@ export const getOrders = async (
    _next: NextFunction
 ) => {
    const { id: userId, role } = req.user;
+   const { status, search } = req.query as { status?: string; search?: string };
 
-   let orders;
-   if (role === 'admin') {
-      orders = await Order.find()
-         .populate('userId', 'name email')
-         .sort({ createdAt: -1 });
+   const filter: { userId?: string; status?: string; _id?: string } = {};
+   if (role !== 'admin') {
+      filter.userId = userId;
    } else {
-      orders = await Order.find({ userId }).sort({ createdAt: -1 });
+      if (status) {
+         filter.status = status;
+      }
+      if (search && search.match(/^[0-9a-fA-F]{24}$/)) {
+         filter._id = search;
+      }
+   }
+
+   let orders = await Order.find(filter)
+      .populate('userId', 'name email')
+      .sort({ createdAt: -1 });
+
+   // Filter by customer name or email in-memory if search is not a valid ObjectId
+   if (search && !search.match(/^[0-9a-fA-F]{24}$/) && role === 'admin') {
+      const searchLower = search.toLowerCase();
+      orders = orders.filter((order) => {
+         const user = order.userId as unknown as {
+            name?: string;
+            email?: string;
+         };
+         return (
+            (user?.name && user.name.toLowerCase().includes(searchLower)) ||
+            (user?.email && user.email.toLowerCase().includes(searchLower))
+         );
+      });
    }
 
    return res.status(HTTP_STATUS.OK).json(orders);
@@ -162,21 +191,46 @@ export const cancelOrder = async (
       );
    }
 
-   if (order.status !== 'pending') {
+   if (order.status !== 'pending' && order.status !== 'processing') {
       throw new AppError(
-         'Only pending orders can be cancelled',
+         'Only pending or processing orders can be cancelled',
          HTTP_STATUS.BAD_REQUEST,
          'INVALID_STATUS'
       );
    }
 
+   const originalStatus = order.status;
    order.status = 'cancelled';
    await order.save();
 
+   // Trigger Stripe Refund if the order was paid (processing)
+   if (originalStatus === 'processing' && order.paymentIntentId) {
+      try {
+         await stripe.refunds.create({
+            payment_intent: order.paymentIntentId,
+         });
+         console.log(
+            `Stripe refund successfully triggered for Order ${order._id}`
+         );
+      } catch (refundErr) {
+         console.error(
+            `Stripe refund failed for Order ${order._id}:`,
+            refundErr
+         );
+      }
+   }
+
    for (const item of order.items) {
-      await Product.findByIdAndUpdate(item.productId, {
-         $inc: { countInStock: item.quantity, sold: -item.quantity },
-      });
+      const updateObj: { $inc: { countInStock: number; sold?: number } } = {
+         $inc: { countInStock: item.quantity },
+      };
+
+      // Only decrement sold count if the order was paid (processing)
+      if (originalStatus === 'processing') {
+         updateObj.$inc.sold = -item.quantity;
+      }
+
+      await Product.findByIdAndUpdate(item.productId, updateObj);
    }
 
    return res.status(HTTP_STATUS.OK).json(order);
@@ -189,6 +243,14 @@ export const updateOrderStatus = async (
 ) => {
    const { id } = req.params as IdParam;
    const { status } = req.body as { status: string };
+
+   if (status === 'processing' || status === 'pending') {
+      throw new AppError(
+         'Cannot manually set order status to pending or processing. These are managed automatically through client payment checkout.',
+         HTTP_STATUS.BAD_REQUEST,
+         'INVALID_STATUS'
+      );
+   }
 
    const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
 
