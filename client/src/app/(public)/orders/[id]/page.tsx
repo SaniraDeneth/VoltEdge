@@ -169,15 +169,29 @@ export default function OrderDetailsPage() {
                      </div>
 
                      <div className="divide-y divide-border/40">
-                        {order.items.map((item) => {
+                        {order.items.map((item, index) => {
                            const product =
+                              item.productId &&
                               typeof item.productId === 'object'
                                  ? item.productId
                                  : null;
                            const productId =
                               typeof item.productId === 'string'
                                  ? item.productId
-                                 : item.productId.id;
+                                 : item.productId
+                                   ? (
+                                        item.productId as unknown as {
+                                           id?: string;
+                                           _id?: string;
+                                        }
+                                     ).id ||
+                                     (
+                                        item.productId as unknown as {
+                                           id?: string;
+                                           _id?: string;
+                                        }
+                                     )._id
+                                   : `deleted-item-${index}`;
 
                            return (
                               <div
@@ -188,7 +202,7 @@ export default function OrderDetailsPage() {
                                     <Image
                                        src={
                                           product?.images?.[0] ||
-                                          'https://placehold.co/100x100?text=VoltEdge'
+                                          'https://placehold.co/100x100.png?text=VoltEdge'
                                        }
                                        alt="Product"
                                        fill
@@ -321,54 +335,52 @@ export default function OrderDetailsPage() {
                   {/* Actions Section */}
                   <div className="p-10 bg-accent/5 rounded-[2.5rem] border border-accent/10 space-y-4">
                      {order.status === 'pending' && (
-                        <>
-                           <button
-                              onClick={async () => {
-                                 try {
-                                    const { url } =
-                                       await paymentApi.createCheckoutSession(
-                                          order.items.map((item) => ({
-                                             productId:
-                                                typeof item.productId ===
-                                                'string'
-                                                   ? item.productId
-                                                   : (item.productId as Product)
-                                                        .id,
-                                             quantity: item.quantity,
-                                          })),
-                                          order.id
-                                       );
-                                    window.location.href = url;
-                                 } catch (error) {
-                                    console.error(
-                                       'Failed to initiate payment',
-                                       error
-                                    );
-                                 }
-                              }}
-                              className="w-full py-5 bg-accent text-white rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-accent/90 transition-all shadow-glow active:scale-[0.98]"
-                           >
-                              Pay Now
-                           </button>
-                           <button
-                              onClick={async () => {
-                                 try {
-                                    const updated = await orderApi.cancel(
+                        <button
+                           onClick={async () => {
+                              try {
+                                 const { url } =
+                                    await paymentApi.createCheckoutSession(
+                                       order.items.map((item) => ({
+                                          productId:
+                                             typeof item.productId === 'string'
+                                                ? item.productId
+                                                : (item.productId as Product)
+                                                     .id,
+                                          quantity: item.quantity,
+                                       })),
                                        order.id
                                     );
-                                    setOrder(updated);
-                                 } catch (error) {
-                                    console.error(
-                                       'Failed to cancel order',
-                                       error
-                                    );
-                                 }
-                              }}
-                              className="w-full py-4 bg-red-500/10 border border-red-500/20 rounded-full text-red-500 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-red-500/20 transition-all"
-                           >
-                              Cancel Order
-                           </button>
-                        </>
+                                 window.location.href = url;
+                              } catch (error) {
+                                 console.error(
+                                    'Failed to initiate payment',
+                                    error
+                                 );
+                              }
+                           }}
+                           className="w-full py-5 bg-accent text-white rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-accent/90 transition-all shadow-glow active:scale-[0.98]"
+                        >
+                           Pay Now
+                        </button>
+                     )}
+
+                     {(order.status === 'pending' ||
+                        order.status === 'processing') && (
+                        <button
+                           onClick={async () => {
+                              try {
+                                 const updated = await orderApi.cancel(
+                                    order.id
+                                 );
+                                 setOrder(updated);
+                              } catch (error) {
+                                 console.error('Failed to cancel order', error);
+                              }
+                           }}
+                           className="w-full py-4 bg-red-500/10 border border-red-500/20 rounded-full text-red-500 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-red-500/20 transition-all"
+                        >
+                           Cancel Order
+                        </button>
                      )}
                      <p className="text-sm font-medium text-foreground pt-4 text-center">
                         Having issues with your order?

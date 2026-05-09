@@ -244,7 +244,15 @@ export const orderApi = {
          method: 'POST',
          body: JSON.stringify(data),
       }),
-   getAll: () => apiRequest<Order[]>('/orders'),
+   getAll: (params?: { status?: string; search?: string }) => {
+      const query = new URLSearchParams();
+      if (params?.status) query.append('status', params.status);
+      if (params?.search) query.append('search', params.search);
+      const queryString = query.toString();
+      return apiRequest<Order[]>(
+         `/orders${queryString ? `?${queryString}` : ''}`
+      );
+   },
    getById: (id: string) => apiRequest<Order>(`/orders/${id}`),
    cancel: (id: string) =>
       apiRequest<Order>(`/orders/${id}/cancel`, {
@@ -253,5 +261,10 @@ export const orderApi = {
    delete: (id: string) =>
       apiRequest<{ message: string }>(`/orders/${id}`, {
          method: 'DELETE',
+      }),
+   updateStatus: (id: string, status: string) =>
+      apiRequest<Order>(`/orders/${id}/status`, {
+         method: 'PATCH',
+         body: JSON.stringify({ status }),
       }),
 };
