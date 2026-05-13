@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'http://127.0.0.1:5000/api';
 
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
@@ -141,10 +141,38 @@ export const productApi = {
 
 export const categoryApi = {
    getAll: () => apiRequest<Category[]>('/categories'),
+   create: (data: { name: string; description?: string }) =>
+      apiRequest<Category>('/categories', {
+         method: 'POST',
+         body: JSON.stringify(data),
+      }),
+   delete: (id: string) =>
+      apiRequest<{ message: string }>(`/categories/${id}`, {
+         method: 'DELETE',
+      }),
+   update: (id: string, data: { name: string }) =>
+      apiRequest<Category>(`/categories/${id}`, {
+         method: 'PUT',
+         body: JSON.stringify(data),
+      }),
 };
 
 export const brandApi = {
    getAll: () => apiRequest<Brand[]>('/brands'),
+   create: (data: FormData) =>
+      apiRequest<Brand>('/brands', {
+         method: 'POST',
+         body: data,
+      }),
+   delete: (id: string) =>
+      apiRequest<{ message: string }>(`/brands/${id}`, {
+         method: 'DELETE',
+      }),
+   update: (id: string, data: FormData) =>
+      apiRequest<Brand>(`/brands/${id}`, {
+         method: 'PUT',
+         body: data,
+      }),
 };
 
 export const authApi = {

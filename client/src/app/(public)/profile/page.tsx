@@ -296,7 +296,8 @@ export default function ProfilePage() {
                                  </button>
                               </div>
                            ) : (
-                              orders.map((order) => {
+                              <div className="space-y-6">
+                                 {orders.slice(0, 3).map((order) => {
                                  const status =
                                     statusConfig[
                                        order.status as keyof typeof statusConfig
@@ -377,7 +378,19 @@ export default function ProfilePage() {
                                        </div>
                                     </Link>
                                  );
-                              })
+                              })}
+                              {orders.length > 3 && (
+                                 <div className="flex justify-center pt-4">
+                                    <Link
+                                       href="/orders"
+                                       className="group flex items-center gap-3 bg-accent/10 text-accent border border-accent/20 px-8 py-4 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-accent/20 transition-all active:scale-[0.98]"
+                                     >
+                                        View All Orders
+                                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                                     </Link>
+                                  </div>
+                               )}
+                            </div>
                            )}
                         </motion.div>
                      ) : (

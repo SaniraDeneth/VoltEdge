@@ -129,13 +129,21 @@ export default function AdminProductsPage() {
                </p>
             </div>
 
-            <Link
-               href="/admin/products/new"
-               className="flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-bold text-white shadow-lg shadow-accent/20 transition-all hover:bg-accent/90 hover:-translate-y-0.5 active:translate-y-0"
-            >
-               <Plus className="h-5 w-5" />
-               Add Product
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+               <Link
+                  href="/admin/products/metadata"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-600 shadow-sm transition-all hover:bg-slate-50 hover:-translate-y-0.5 active:translate-y-0"
+               >
+                  Categories & Brands
+               </Link>
+               <Link
+                  href="/admin/products/new"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-bold text-white shadow-lg shadow-accent/20 transition-all hover:bg-accent/90 hover:-translate-y-0.5 active:translate-y-0"
+               >
+                  <Plus className="h-5 w-5" />
+                  Add Product
+               </Link>
+            </div>
          </div>
 
          {/* Search & Global Filter Toggle */}
